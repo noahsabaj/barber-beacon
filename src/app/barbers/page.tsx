@@ -50,8 +50,8 @@ export default function BarbersPage() {
   const [error, setError] = useState<string>('')
   const [searchLocation, setSearchLocation] = useState<{lat: number, lng: number} | null>(null)
   const [filters, setFilters] = useState({
-    service: '',
-    minRating: '',
+    service: 'all',
+    minRating: 'all',
     maxDistance: '25',
     sortBy: 'distance'
   })
@@ -65,8 +65,8 @@ export default function BarbersPage() {
         lat: lat.toString(),
         lng: lng.toString(),
         radius: filters.maxDistance,
-        ...(filters.service && { service: filters.service }),
-        ...(filters.minRating && { minRating: filters.minRating }),
+        ...(filters.service !== 'all' && { service: filters.service }),
+        ...(filters.minRating !== 'all' && { minRating: filters.minRating }),
         sortBy: filters.sortBy
       })
 
@@ -151,7 +151,7 @@ export default function BarbersPage() {
                         <SelectValue placeholder="Any service" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Any service</SelectItem>
+                        <SelectItem value="all">Any service</SelectItem>
                         <SelectItem value="haircut">Haircut</SelectItem>
                         <SelectItem value="beard-trim">Beard Trim</SelectItem>
                         <SelectItem value="shave">Shave</SelectItem>
@@ -172,7 +172,7 @@ export default function BarbersPage() {
                         <SelectValue placeholder="Any rating" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Any rating</SelectItem>
+                        <SelectItem value="all">Any rating</SelectItem>
                         <SelectItem value="4">4+ stars</SelectItem>
                         <SelectItem value="4.5">4.5+ stars</SelectItem>
                       </SelectContent>
@@ -351,7 +351,7 @@ export default function BarbersPage() {
                       </p>
                       <Button
                         variant="outline"
-                        onClick={() => setFilters(prev => ({ ...prev, maxDistance: '50', service: '', minRating: '' }))}
+                        onClick={() => setFilters(prev => ({ ...prev, maxDistance: '50', service: 'all', minRating: 'all' }))}
                       >
                         Clear Filters
                       </Button>
