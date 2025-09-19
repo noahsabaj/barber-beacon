@@ -12,10 +12,12 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useAuth } from '@/contexts/AuthContext'
+import { VALIDATION_RULES } from '@/lib/validation-constants'
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z.string()
+    .min(VALIDATION_RULES.PASSWORD.MIN_LENGTH, VALIDATION_RULES.PASSWORD.ERROR_MESSAGE),
 })
 
 type LoginForm = z.infer<typeof loginSchema>
@@ -39,29 +41,11 @@ export default function LoginPage() {
     setError('')
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      })
+      // Use AuthContext login method
+      await login(data.email, data.password)
 
-      const result = await response.json()
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Login failed')
-      }
-
-      // Update auth context
-      login(result.user, result.token)
-
-      // Redirect based on user role
-      if (result.user.role === 'barber') {
-        router.push('/barber-dashboard')
-      } else {
-        router.push('/dashboard')
-      }
+      // Redirect will be handled by AuthContext or by checking auth state
+      router.push('/dashboard')
     } catch (error) {
       setError(error instanceof Error ? error.message : 'An error occurred')
     } finally {
