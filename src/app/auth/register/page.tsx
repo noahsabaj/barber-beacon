@@ -21,7 +21,7 @@ const registerSchema = z.object({
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
   role: z.enum(['customer', 'barber'], {
-    required_error: 'Please select your account type',
+    message: 'Please select your account type',
   }),
   phone: z.string().optional(),
 }).refine((data) => data.password === data.confirmPassword, {

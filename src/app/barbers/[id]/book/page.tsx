@@ -36,7 +36,7 @@ interface BarberProfile {
 const bookingSchema = z.object({
   serviceId: z.string().min(1, 'Please select a service'),
   date: z.date({
-    required_error: 'Please select a date',
+    message: 'Please select a date',
   }),
   time: z.string().min(1, 'Please select a time'),
 })
