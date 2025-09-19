@@ -26,15 +26,29 @@ export default function Navigation() {
             </Link>
             {isAuthenticated && (
               <>
-                <Link href="/bookings" className="text-gray-600 hover:text-gray-900 transition-colors">
-                  My Bookings
-                </Link>
-                {user?.role === 'barber' && (
+                {user?.role === 'customer' && (
                   <Link href="/dashboard" className="text-gray-600 hover:text-gray-900 transition-colors">
+                    My Bookings
+                  </Link>
+                )}
+                {user?.role === 'barber' && (
+                  <Link href="/barber-dashboard" className="text-gray-600 hover:text-gray-900 transition-colors">
                     Dashboard
                   </Link>
                 )}
               </>
+            )}
+          </div>
+
+          {/* Mobile Navigation */}
+          <div className="md:hidden">
+            {isAuthenticated && (
+              <Link
+                href={user?.role === 'barber' ? '/barber-dashboard' : '/dashboard'}
+                className="text-gray-600 hover:text-gray-900 transition-colors text-sm"
+              >
+                Dashboard
+              </Link>
             )}
           </div>
 
