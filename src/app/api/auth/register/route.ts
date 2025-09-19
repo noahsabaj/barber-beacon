@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { hashPassword, validateEmail, validatePassword } from '@/lib/auth'
 import { signToken } from '@/lib/jwt'
+import { VALIDATION_RULES } from '@/lib/validation-constants'
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest) {
 
     if (!validatePassword(password)) {
       return NextResponse.json(
-        { error: 'Password must be at least 8 characters with letters and numbers' },
+        { error: VALIDATION_RULES.PASSWORD.ERROR_MESSAGE },
         { status: 400 }
       )
     }

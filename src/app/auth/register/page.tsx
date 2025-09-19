@@ -13,10 +13,13 @@ import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useAuth } from '@/contexts/AuthContext'
+import { VALIDATION_RULES, getPasswordPlaceholder } from '@/lib/validation-constants'
 
 const registerSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z.string()
+    .min(VALIDATION_RULES.PASSWORD.MIN_LENGTH, VALIDATION_RULES.PASSWORD.ERROR_MESSAGE)
+    .regex(VALIDATION_RULES.PASSWORD.REGEX, VALIDATION_RULES.PASSWORD.ERROR_MESSAGE),
   confirmPassword: z.string(),
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
@@ -214,7 +217,7 @@ export default function RegisterPage() {
                       <FormControl>
                         <Input
                           type="password"
-                          placeholder="Minimum 6 characters"
+                          placeholder={getPasswordPlaceholder()}
                           {...field}
                         />
                       </FormControl>
