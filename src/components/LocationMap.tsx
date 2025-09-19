@@ -6,7 +6,7 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
 // Fix for default markers in react-leaflet
-delete (L.Icon.Default.prototype as any)._getIconUrl
+delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
@@ -20,7 +20,6 @@ interface LocationMapProps {
     position: [number, number]
     popup: string
   }>
-  onLocationSelect?: (lat: number, lng: number) => void
   className?: string
 }
 
@@ -28,7 +27,6 @@ export default function LocationMap({
   center,
   zoom = 13,
   markers = [],
-  onLocationSelect,
   className = "h-64 w-full"
 }: LocationMapProps) {
   useEffect(() => {
@@ -39,11 +37,6 @@ export default function LocationMap({
     return () => clearTimeout(timer)
   }, [])
 
-  const handleMapClick = (e: any) => {
-    if (onLocationSelect) {
-      onLocationSelect(e.latlng.lat, e.latlng.lng)
-    }
-  }
 
   return (
     <div className={className}>

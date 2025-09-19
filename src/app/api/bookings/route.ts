@@ -7,7 +7,7 @@ import { validateBookingData } from '@/lib/validation'
 export async function POST(request: NextRequest) {
   try {
     // Verify authentication
-    const token = extractTokenFromHeader(request.headers.get('authorization'))
+    const token = extractTokenFromHeader(request.headers.get('authorization') || undefined)
     if (!token) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
     }
@@ -149,7 +149,7 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   try {
     // Verify authentication
-    const token = extractTokenFromHeader(request.headers.get('authorization'))
+    const token = extractTokenFromHeader(request.headers.get('authorization') || undefined)
     if (!token) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
     }
@@ -159,7 +159,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status')
 
     // Build filter conditions based on user role
-    const whereConditions: any = {}
+    const whereConditions: Record<string, unknown> = {}
 
     if (user.role === 'customer') {
       whereConditions.customerId = user.id

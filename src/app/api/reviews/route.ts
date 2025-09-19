@@ -6,7 +6,7 @@ import { validateReviewData } from '@/lib/validation'
 export async function POST(request: NextRequest) {
   try {
     // Verify authentication
-    const token = extractTokenFromHeader(request.headers.get('authorization'))
+    const token = extractTokenFromHeader(request.headers.get('authorization') || undefined)
     if (!token) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
     }
@@ -101,7 +101,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20')
     const offset = parseInt(searchParams.get('offset') || '0')
 
-    const whereConditions: any = {}
+    const whereConditions: Record<string, unknown> = {}
 
     if (barberId) {
       whereConditions.barberId = barberId

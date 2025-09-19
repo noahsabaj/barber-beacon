@@ -4,6 +4,17 @@ import prisma from '@/lib/prisma'
 import { sendConfirmationSMS } from '@/lib/twilio'
 import { sendConfirmationEmail } from '@/lib/sendgrid'
 
+interface StripePaymentIntent {
+  id: string
+  amount: number
+  metadata: {
+    bookingId?: string
+    customerId?: string
+    barberId?: string
+    serviceId?: string
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.text()
@@ -21,16 +32,17 @@ export async function POST(request: NextRequest) {
 
     try {
       event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET)
-    } catch (err: any) {
-      console.error('Webhook signature verification failed:', err.message)
-      return NextResponse.json({ error: `Webhook Error: ${err.message}` }, { status: 400 })
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error'
+      console.error('Webhook signature verification failed:', errorMessage)
+      return NextResponse.json({ error: `Webhook Error: ${errorMessage}` }, { status: 400 })
     }
 
     console.log('Received Stripe webhook event:', event.type)
 
     switch (event.type) {
       case 'payment_intent.succeeded': {
-        const paymentIntent = event.data.object as any
+        const paymentIntent = event.data.object as StripePaymentIntent
         console.log('Payment succeeded:', paymentIntent.id)
 
         const bookingId = paymentIntent.metadata.bookingId
@@ -82,7 +94,7 @@ export async function POST(request: NextRequest) {
       }
 
       case 'payment_intent.payment_failed': {
-        const paymentIntent = event.data.object as any
+        const paymentIntent = event.data.object as StripePaymentIntent
         console.log('Payment failed:', paymentIntent.id)
 
         const bookingId = paymentIntent.metadata.bookingId
@@ -113,7 +125,7 @@ export async function POST(request: NextRequest) {
       }
 
       case 'payment_intent.canceled': {
-        const paymentIntent = event.data.object as any
+        const paymentIntent = event.data.object as StripePaymentIntent
         console.log('Payment canceled:', paymentIntent.id)
 
         const bookingId = paymentIntent.metadata.bookingId

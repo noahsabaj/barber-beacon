@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function Home() {
-  const { isAuthenticated, user } = useAuth()
+  const { isAuthenticated } = useAuth()
 
   return (
     <div className="max-w-7xl mx-auto">

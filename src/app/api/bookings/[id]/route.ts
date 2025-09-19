@@ -8,7 +8,7 @@ export async function GET(
 ) {
   try {
     // Verify authentication
-    const token = extractTokenFromHeader(request.headers.get('authorization'))
+    const token = extractTokenFromHeader(request.headers.get('authorization') || undefined)
     if (!token) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
     }
@@ -73,7 +73,7 @@ export async function PUT(
 ) {
   try {
     // Verify authentication
-    const token = extractTokenFromHeader(request.headers.get('authorization'))
+    const token = extractTokenFromHeader(request.headers.get('authorization') || undefined)
     if (!token) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
     }

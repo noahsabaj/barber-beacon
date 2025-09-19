@@ -6,7 +6,7 @@ import { verifyToken, extractTokenFromHeader } from '@/lib/jwt'
 export async function POST(request: NextRequest) {
   try {
     // Verify authentication
-    const token = extractTokenFromHeader(request.headers.get('authorization'))
+    const token = extractTokenFromHeader(request.headers.get('authorization') || undefined)
     if (!token) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
     }

@@ -4,7 +4,7 @@ import { verifyToken, extractTokenFromHeader } from '@/lib/jwt'
 
 export async function GET(request: NextRequest) {
   try {
-    const token = extractTokenFromHeader(request.headers.get('authorization'))
+    const token = extractTokenFromHeader(request.headers.get('authorization') || undefined)
 
     if (!token) {
       return NextResponse.json({ error: 'No token provided' }, { status: 401 })
@@ -21,17 +21,6 @@ export async function GET(request: NextRequest) {
             services: true
           }
         }
-      },
-      select: {
-        id: true,
-        email: true,
-        role: true,
-        firstName: true,
-        lastName: true,
-        phone: true,
-        address: true,
-        createdAt: true,
-        barberProfile: true
       }
     })
 
@@ -39,7 +28,21 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    return NextResponse.json({ user }, { status: 200 })
+    // Remove password from response
+    const userWithoutPassword = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      phone: user.phone,
+      address: user.address,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      barberProfile: user.barberProfile
+    }
+
+    return NextResponse.json({ user: userWithoutPassword }, { status: 200 })
   } catch (error) {
     console.error('Auth verification error:', error)
     return NextResponse.json({ error: 'Invalid token' }, { status: 401 })

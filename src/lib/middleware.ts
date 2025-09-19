@@ -18,7 +18,7 @@ export function withAuth(handler: (req: AuthenticatedRequest, res: NextApiRespon
       ;(req as AuthenticatedRequest).user = user
 
       return handler(req as AuthenticatedRequest, res)
-    } catch (error) {
+    } catch {
       return res.status(401).json({ error: 'Invalid token' })
     }
   }
