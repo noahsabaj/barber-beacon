@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { hashPassword, validateEmail, validatePassword } from '@/lib/auth'
+import { signToken } from '@/lib/jwt'
 
 export async function POST(request: NextRequest) {
   try {
@@ -60,7 +61,14 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    return NextResponse.json({ user }, { status: 201 })
+    // Generate JWT token
+    const token = signToken({
+      id: user.id,
+      email: user.email,
+      role: user.role
+    })
+
+    return NextResponse.json({ user, token }, { status: 201 })
   } catch (error) {
     console.error('Registration error:', error)
     return NextResponse.json({ error: 'Registration failed' }, { status: 500 })
