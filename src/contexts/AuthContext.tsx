@@ -5,6 +5,7 @@ import { User, AuthState } from '@/types'
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<void>
+  loginWithToken: (user: User, token: string) => void
   register: (userData: RegisterData) => Promise<void>
   logout: () => void
   updateUser: (user: User) => void
@@ -138,6 +139,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })
   }
 
+  const loginWithToken = (user: User, token: string) => {
+    localStorage.setItem('barber_beacon_token', token)
+    setAuthState({
+      user,
+      token,
+      isLoading: false,
+      isAuthenticated: true
+    })
+  }
+
   const updateUser = (user: User) => {
     setAuthState(prev => ({
       ...prev,
@@ -150,6 +161,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         ...authState,
         login,
+        loginWithToken,
         register,
         logout,
         updateUser

@@ -37,7 +37,7 @@ type RegisterForm = z.infer<typeof registerSchema>
 export default function RegisterPage() {
   const [error, setError] = useState<string>('')
   const [isLoading, setIsLoading] = useState(false)
-  const { login } = useAuth()
+  const { loginWithToken } = useAuth()
   const router = useRouter()
 
   const form = useForm<RegisterForm>({
@@ -75,7 +75,7 @@ export default function RegisterPage() {
       }
 
       // Update auth context
-      login(result.user, result.token)
+      loginWithToken(result.user, result.token)
 
       // Redirect based on user role
       if (result.user.role === 'barber') {
