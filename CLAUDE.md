@@ -17,8 +17,8 @@ barber-beacon/
 ├── .eslintrc.json               # ESLint configuration
 ├── .gitignore                   # Git ignore rules
 ├── CLAUDE.md                    # This file - Claude AI guide
-├── README.md                    # Next.js default readme
-├── SETUP.md                     # Deployment guide
+├── README.md                    # Professional SaaS platform documentation
+├── components.json              # shadcn/ui configuration
 ├── next.config.mjs              # Next.js configuration
 ├── package.json                 # Dependencies and scripts
 ├── package-lock.json            # Lock file
@@ -33,7 +33,7 @@ barber-beacon/
 │
 ├── src/
 │   ├── app/                     # Next.js 14 App Router
-│   │   ├── globals.css          # Global styles
+│   │   ├── globals.css          # Global styles with Tailwind
 │   │   ├── layout.tsx           # Root layout with AuthProvider
 │   │   ├── page.tsx             # Homepage with hero/features
 │   │   ├── favicon.ico          # Site icon
@@ -43,8 +43,8 @@ barber-beacon/
 │   │   ├──
 │   │   ├── api/                 # API Routes (Backend)
 │   │   │   ├── auth/            # Authentication endpoints
-│   │   │   │   ├── register/route.ts    # User registration
-│   │   │   │   ├── login/route.ts       # User login
+│   │   │   │   ├── register/route.ts    # User registration with JWT
+│   │   │   │   ├── login/route.ts       # User login with JWT
 │   │   │   │   └── me/route.ts          # Get current user
 │   │   │   ├──
 │   │   │   ├── barbers/         # Barber search endpoints
@@ -64,21 +64,52 @@ barber-beacon/
 │   │   │   └── webhooks/        # External webhooks
 │   │   │       └── stripe/route.ts # Stripe payment webhooks
 │   │   ├──
-│   │   ├── auth/                # Authentication pages (planned)
-│   │   ├── barbers/             # Barber search pages (planned)
-│   │   ├── bookings/            # Booking management pages (planned)
-│   │   └── dashboard/           # Barber dashboard pages (planned)
+│   │   ├── auth/                # Authentication pages (COMPLETED)
+│   │   │   ├── login/page.tsx           # Professional login page
+│   │   │   ├── register/page.tsx        # Role-based registration
+│   │   │   └── forgot-password/page.tsx # Password reset (template)
+│   │   ├──
+│   │   ├── barbers/             # Barber discovery pages (COMPLETED)
+│   │   │   ├── page.tsx                 # Search with map & filters
+│   │   │   ├── [id]/page.tsx           # Individual barber profile
+│   │   │   └── [id]/book/page.tsx      # Booking appointment page
+│   │   ├──
+│   │   ├── booking/             # Booking flow pages (COMPLETED)
+│   │   │   ├── confirmation/page.tsx    # Booking confirmation
+│   │   │   └── payment/page.tsx         # Payment processing
+│   │   ├──
+│   │   ├── dashboard/           # Customer dashboard (COMPLETED)
+│   │   │   └── page.tsx                 # Customer booking management
+│   │   ├──
+│   │   └── barber-dashboard/    # Barber business dashboard (COMPLETED)
+│   │       └── page.tsx                 # Business management interface
 │   │
 │   ├── components/              # React Components
 │   │   ├── Navigation.tsx       # Main navigation with auth state
 │   │   ├── LocationMap.tsx      # OpenStreetMap display component
-│   │   └── LocationSearch.tsx   # Address search with autocomplete
+│   │   ├── LocationSearch.tsx   # Address search with autocomplete
+│   │   └── ui/                  # shadcn/ui components
+│   │       ├── alert.tsx        # Alert component
+│   │       ├── avatar.tsx       # Avatar component
+│   │       ├── badge.tsx        # Badge component
+│   │       ├── button.tsx       # Button component
+│   │       ├── calendar.tsx     # Calendar component
+│   │       ├── card.tsx         # Card component
+│   │       ├── dialog.tsx       # Dialog component
+│   │       ├── form.tsx         # Form component
+│   │       ├── input.tsx        # Input component
+│   │       ├── label.tsx        # Label component
+│   │       ├── select.tsx       # Select component
+│   │       ├── separator.tsx    # Separator component
+│   │       ├── table.tsx        # Table component
+│   │       ├── tabs.tsx         # Tabs component
+│   │       └── textarea.tsx     # Textarea component
 │   │
 │   ├── contexts/                # React Contexts
 │   │   └── AuthContext.tsx      # Authentication state management
 │   │
 │   ├── lib/                     # Utility Libraries
-│   │   ├── auth.ts              # Password hashing & validation
+│   │   ├── auth.ts              # Password hashing & validation (bcryptjs)
 │   │   ├── geocoding.ts         # OpenStreetMap geocoding utilities
 │   │   ├── jwt.ts               # JWT token management
 │   │   ├── middleware.ts        # Auth & rate limiting middleware
@@ -86,7 +117,9 @@ barber-beacon/
 │   │   ├── sendgrid.ts          # Email notifications
 │   │   ├── stripe.ts            # Payment processing
 │   │   ├── twilio.ts            # SMS notifications
-│   │   └── validation.ts        # Data validation utilities
+│   │   ├── utils.ts             # shadcn/ui utility functions
+│   │   ├── validation.ts        # Data validation utilities
+│   │   └── validation-constants.ts # Single source of truth for validation
 │   │
 │   └── types/                   # TypeScript Interfaces
 │       └── index.ts             # All type definitions
