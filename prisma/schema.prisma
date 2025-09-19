@@ -8,86 +8,86 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  role      String   @default("customer") // "customer", "barber", "admin"
-  firstName String?
-  lastName  String?
-  phone     String?
-  address   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String         @id @default(uuid())
+  email         String         @unique
+  password      String
+  role          String         @default("customer")
+  firstName     String?
+  lastName      String?
+  phone         String?
+  address       String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   barberProfile BarberProfile?
-  bookings    Booking[]
-  reviews     Review[]
+  bookings      Booking[]
+  reviews       Review[]
 }
 
 model BarberProfile {
-  id          String   @id @default(uuid())
-  userId      String   @unique
-  user        User     @relation(fields: [userId], references: [id])
+  id           String    @id @default(uuid())
+  userId       String    @unique
   businessName String
-  bio         String?
-  location    Json     // { lat: Float, lng: Float }
-  hourlyRate  Float?
-  portfolio   String[] // Array of Cloudflare R2 image URLs
-  workingHours Json   // { Monday: { start: "09:00", end: "17:00" }, ... }
-  services    Service[]
-  bookings    Booking[]
-  reviews     Review[]
+  bio          String?
+  location     Json
+  hourlyRate   Float?
+  portfolio    String[]
+  workingHours Json
+  user         User      @relation(fields: [userId], references: [id])
+  bookings     Booking[]
+  reviews      Review[]
+  services     Service[]
 }
 
 model Service {
-  id        String   @id @default(uuid())
-  barberId  String
-  barber    BarberProfile @relation(fields: [barberId], references: [id])
-  name      String
+  id          String        @id @default(uuid())
+  barberId    String
+  name        String
   description String?
-  price     Float
-  duration  Int      // Minutes
-  category  String   // "cut", "beard", "color", etc.
-  bookings  Booking[]
+  price       Float
+  duration    Int
+  category    String
+  bookings    Booking[]
+  barber      BarberProfile @relation(fields: [barberId], references: [id])
 }
 
 model Booking {
-  id          String   @id @default(uuid())
-  customerId  String
-  customer    User     @relation(fields: [customerId], references: [id])
-  barberId    String
-  barber      BarberProfile @relation(fields: [barberId], references: [id])
-  serviceId   String
-  service     Service  @relation(fields: [serviceId], references: [id])
-  dateTime    DateTime
-  status      String   @default("scheduled") // "scheduled", "completed", "canceled"
-  paymentStatus String @default("pending") // "pending", "paid", "failed"
-  totalAmount Float
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  payment     Payment?
-  review      Review?
+  id            String        @id @default(uuid())
+  customerId    String
+  barberId      String
+  serviceId     String
+  dateTime      DateTime
+  status        String        @default("scheduled")
+  paymentStatus String        @default("pending")
+  totalAmount   Float
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  barber        BarberProfile @relation(fields: [barberId], references: [id])
+  customer      User          @relation(fields: [customerId], references: [id])
+  service       Service       @relation(fields: [serviceId], references: [id])
+  payment       Payment?
+  review        Review?
 }
 
 model Review {
-  id          String   @id @default(uuid())
-  customerId  String
-  customer    User     @relation(fields: [customerId], references: [id])
-  barberId    String
-  barber      BarberProfile @relation(fields: [barberId], references: [id])
-  bookingId   String   @unique
-  booking     Booking  @relation(fields: [bookingId], references: [id])
-  rating      Int      // 1-5
-  comment     String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String        @id @default(uuid())
+  customerId String
+  barberId   String
+  bookingId  String        @unique
+  rating     Int
+  comment    String?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  barber     BarberProfile @relation(fields: [barberId], references: [id])
+  booking    Booking       @relation(fields: [bookingId], references: [id])
+  customer   User          @relation(fields: [customerId], references: [id])
 }
 
 model Payment {
-  id          String   @id @default(uuid())
-  bookingId   String   @unique
-  booking     Booking  @relation(fields: [bookingId], references: [id])
-  amount      Float
+  id              String   @id @default(uuid())
+  bookingId       String   @unique
+  amount          Float
   stripePaymentId String
-  status      String   // "succeeded", "failed", "pending"
-  createdAt   DateTime @default(now())
+  status          String
+  createdAt       DateTime @default(now())
+  booking         Booking  @relation(fields: [bookingId], references: [id])
 }
