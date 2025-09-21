@@ -42,7 +42,7 @@ export function withRateLimit(requestsPerWindow: number = 100, windowMs: number 
   return function (handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void>) {
     return async (req: NextApiRequest, res: NextApiResponse) => {
       const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown'
-      const key = Array.isArray(ip) ? ip[0] : ip
+      const key = Array.isArray(ip) ? (ip[0] || 'unknown') : (ip || 'unknown')
       const now = Date.now()
 
       let record = rateLimitStore.get(key)

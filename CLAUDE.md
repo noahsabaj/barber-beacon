@@ -20,11 +20,13 @@ barber-beacon/
 ├── README.md                    # Professional SaaS platform documentation
 ├── components.json              # shadcn/ui configuration
 ├── next.config.mjs              # Next.js configuration
+├── next-env.d.ts                # Next.js TypeScript environment
 ├── package.json                 # Dependencies and scripts
 ├── package-lock.json            # Lock file
 ├── postcss.config.mjs           # PostCSS configuration
 ├── tailwind.config.ts           # Tailwind CSS configuration
 ├── tsconfig.json                # TypeScript configuration
+├── tsconfig.tsbuildinfo         # TypeScript build info (generated)
 ├──
 ├── prisma/
 │   ├── schema.prisma            # Database schema with all models
@@ -43,12 +45,16 @@ barber-beacon/
 │   │   ├──
 │   │   ├── api/                 # API Routes (Backend)
 │   │   │   ├── auth/            # Authentication endpoints
-│   │   │   │   ├── register/route.ts    # User registration with JWT
 │   │   │   │   ├── login/route.ts       # User login with JWT
-│   │   │   │   └── me/route.ts          # Get current user
+│   │   │   │   ├── logout/route.ts      # User logout
+│   │   │   │   ├── me/route.ts          # Get current user
+│   │   │   │   ├── refresh/route.ts     # Token refresh
+│   │   │   │   ├── register/route.ts    # User registration with JWT
+│   │   │   │   └── verify-email/route.ts # Email verification
 │   │   │   ├──
 │   │   │   ├── barbers/         # Barber search endpoints
-│   │   │   │   └── route.ts     # GET /api/barbers (location-based search)
+│   │   │   │   ├── route.ts     # GET /api/barbers (location-based search)
+│   │   │   │   └── [id]/route.ts # GET/PUT specific barber
 │   │   │   ├──
 │   │   │   ├── bookings/        # Booking management
 │   │   │   │   ├── route.ts     # POST/GET bookings
@@ -74,33 +80,47 @@ barber-beacon/
 │   │   │   ├── [id]/page.tsx           # Individual barber profile
 │   │   │   └── [id]/book/page.tsx      # Booking appointment page
 │   │   ├──
+│   │   ├── barber-dashboard/    # Barber business dashboard (COMPLETED)
+│   │   │   └── page.tsx                 # Business management interface
+│   │   ├──
 │   │   ├── booking/             # Booking flow pages (COMPLETED)
 │   │   │   ├── confirmation/page.tsx    # Booking confirmation
 │   │   │   └── payment/page.tsx         # Payment processing
 │   │   ├──
-│   │   ├── dashboard/           # Customer dashboard (COMPLETED)
-│   │   │   └── page.tsx                 # Customer booking management
+│   │   ├── bookings/            # Booking management pages
+│   │   │   └── page.tsx                 # Booking list/management
 │   │   ├──
-│   │   └── barber-dashboard/    # Barber business dashboard (COMPLETED)
-│   │       └── page.tsx                 # Business management interface
+│   │   └── dashboard/           # Customer dashboard (COMPLETED)
+│   │       └── page.tsx                 # Customer booking management
 │   │
 │   ├── components/              # React Components
 │   │   ├── Navigation.tsx       # Main navigation with auth state
 │   │   ├── LocationMap.tsx      # OpenStreetMap display component
 │   │   ├── LocationSearch.tsx   # Address search with autocomplete
+│   │   ├── ErrorBoundary/       # Error boundary components
+│   │   │   ├── APIErrorBoundary.tsx     # API error handling
+│   │   │   ├── FeatureErrorBoundary.tsx # Feature-specific errors
+│   │   │   └── GlobalErrorBoundary.tsx  # Global error handling
+│   │   ├── shared/              # Shared components
+│   │   │   └── LoadingSpinner.tsx       # Loading indicator
 │   │   └── ui/                  # shadcn/ui components
 │   │       ├── alert.tsx        # Alert component
+│   │       ├── alert-dialog.tsx # Alert dialog component
 │   │       ├── avatar.tsx       # Avatar component
 │   │       ├── badge.tsx        # Badge component
 │   │       ├── button.tsx       # Button component
 │   │       ├── calendar.tsx     # Calendar component
 │   │       ├── card.tsx         # Card component
+│   │       ├── checkbox.tsx     # Checkbox component
+│   │       ├── collapsible.tsx  # Collapsible component
 │   │       ├── dialog.tsx       # Dialog component
 │   │       ├── form.tsx         # Form component
 │   │       ├── input.tsx        # Input component
 │   │       ├── label.tsx        # Label component
+│   │       ├── progress.tsx     # Progress component
 │   │       ├── select.tsx       # Select component
 │   │       ├── separator.tsx    # Separator component
+│   │       ├── slider.tsx       # Slider component
 │   │       ├── table.tsx        # Table component
 │   │       ├── tabs.tsx         # Tabs component
 │   │       └── textarea.tsx     # Textarea component
@@ -108,7 +128,43 @@ barber-beacon/
 │   ├── contexts/                # React Contexts
 │   │   └── AuthContext.tsx      # Authentication state management
 │   │
+│   ├── features/                # Feature-based architecture
+│   │   ├── auth/                # Authentication feature
+│   │   │   ├── components/      # Auth-specific components
+│   │   │   ├── hooks/           # Auth-specific hooks
+│   │   │   ├── index.ts         # Feature exports
+│   │   │   └── utils/           # Auth utilities
+│   │   ├── barbers/             # Barber management feature
+│   │   │   ├── components/      # Barber-specific components
+│   │   │   ├── hooks/           # Barber-specific hooks
+│   │   │   ├── index.ts         # Feature exports
+│   │   │   └── utils/           # Barber utilities
+│   │   └── bookings/            # Booking management feature
+│   │       ├── components/      # Booking-specific components
+│   │       ├── hooks/           # Booking-specific hooks
+│   │       ├── index.ts         # Feature exports
+│   │       └── utils/           # Booking utilities
+│   │
+│   ├── hooks/                   # Custom React hooks
+│   │   ├── auth/                # Authentication hooks
+│   │   │   └── useAuth.ts       # Authentication state management
+│   │   ├── barbers/             # Barber-related hooks
+│   │   │   └── useBarbers.ts    # Barber data management
+│   │   ├── bookings/            # Booking-related hooks
+│   │   │   └── useBookings.ts   # Booking data management
+│   │   └── shared/              # Shared hooks
+│   │
 │   ├── lib/                     # Utility Libraries
+│   │   ├── api/                 # API layer architecture
+│   │   │   ├── base/            # Base API configurations
+│   │   │   ├── examples/        # API usage examples
+│   │   │   ├── index.ts         # API exports
+│   │   │   ├── middleware/      # API middleware
+│   │   │   ├── repositories/    # Data access layer
+│   │   │   ├── schemas/         # API schemas
+│   │   │   ├── services/        # Business logic services
+│   │   │   ├── types/           # API type definitions
+│   │   │   └── utils/           # API utilities
 │   │   ├── auth.ts              # Password hashing & validation (bcryptjs)
 │   │   ├── geocoding.ts         # OpenStreetMap geocoding utilities
 │   │   ├── jwt.ts               # JWT token management
@@ -120,6 +176,15 @@ barber-beacon/
 │   │   ├── utils.ts             # shadcn/ui utility functions
 │   │   ├── validation.ts        # Data validation utilities
 │   │   └── validation-constants.ts # Single source of truth for validation
+│   │
+│   ├── providers/               # React Context Providers
+│   │   ├── QueryProvider.tsx    # React Query provider
+│   │   └── StoreProvider.tsx    # Store provider (Zustand)
+│   │
+│   ├── stores/                  # State management (Zustand)
+│   │   ├── authStore.ts         # Authentication store
+│   │   ├── notificationStore.ts # Notification store
+│   │   └── uiStore.ts           # UI state store
 │   │
 │   └── types/                   # TypeScript Interfaces
 │       └── index.ts             # All type definitions

@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useAuth } from '@/contexts/AuthContext'
-import { Calendar, Clock, MapPin, Star, Settings, Search, Plus } from 'lucide-react'
+import { Calendar, Clock, Star, Settings, Search, Plus } from 'lucide-react'
 
 interface Booking {
   id: string

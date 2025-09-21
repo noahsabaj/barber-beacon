@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { CheckCircle, Calendar, Clock, MapPin, User, Phone, Mail } from 'lucide-react'
+import { CheckCircle, Calendar, Clock, User, Phone } from 'lucide-react'
 
 interface BookingDetails {
   id: string

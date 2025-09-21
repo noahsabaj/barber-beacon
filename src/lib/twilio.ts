@@ -1,11 +1,11 @@
 const twilio = require('twilio')
 import prisma from './prisma'
 
-if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN) {
+if (!process.env['TWILIO_ACCOUNT_SID'] || !process.env['TWILIO_AUTH_TOKEN']) {
   throw new Error('Twilio credentials are required')
 }
 
-const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
+const client = twilio(process.env['TWILIO_ACCOUNT_SID'], process.env['TWILIO_AUTH_TOKEN'])
 
 export async function sendConfirmationSMS(bookingId: string) {
   try {
@@ -22,12 +22,12 @@ export async function sendConfirmationSMS(bookingId: string) {
       throw new Error('Booking or customer phone not found')
     }
 
-    const message = `Your booking with ${booking.barber.businessName} for ${booking.service.name} on ${new Date(booking.dateTime).toLocaleString()} is confirmed! Total: $${booking.totalAmount}`
+    const message = `Your booking with ${booking.barber.businessName} for ${booking.service.name} on ${new Date(booking.scheduledTime).toLocaleString()} is confirmed! Total: $${booking.totalAmount}`
 
     await client.messages.create({
       body: message,
       to: booking.customer.phone,
-      from: process.env.TWILIO_PHONE_NUMBER
+      from: process.env['TWILIO_PHONE_NUMBER']
     })
 
     console.log('SMS confirmation sent for booking:', bookingId)
@@ -52,12 +52,12 @@ export async function sendReminderSMS(bookingId: string) {
       throw new Error('Booking or customer phone not found')
     }
 
-    const message = `Reminder: You have an appointment with ${booking.barber.businessName} tomorrow at ${new Date(booking.dateTime).toLocaleTimeString()}`
+    const message = `Reminder: You have an appointment with ${booking.barber.businessName} tomorrow at ${new Date(booking.scheduledTime).toLocaleTimeString()}`
 
     await client.messages.create({
       body: message,
       to: booking.customer.phone,
-      from: process.env.TWILIO_PHONE_NUMBER
+      from: process.env['TWILIO_PHONE_NUMBER']
     })
 
     console.log('SMS reminder sent for booking:', bookingId)

@@ -6,7 +6,6 @@ import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Star, MapPin, Clock, DollarSign, Phone, Calendar, ArrowLeft } from 'lucide-react'
 
 // Dynamically import LocationMap to avoid SSR issues
@@ -68,11 +67,11 @@ export default function BarberProfilePage() {
 
   useEffect(() => {
     const fetchBarberProfile = async () => {
-      if (!params.id) return
+      if (!params['id']) return
 
       try {
         // Fetch barber profile
-        const barberResponse = await fetch(`/api/barbers/${params.id}`)
+        const barberResponse = await fetch(`/api/barbers/${params['id']}`)
         if (!barberResponse.ok) {
           throw new Error('Barber not found')
         }
@@ -80,7 +79,7 @@ export default function BarberProfilePage() {
         setBarber(barberData.barber)
 
         // Fetch reviews
-        const reviewsResponse = await fetch(`/api/reviews?barberId=${params.id}`)
+        const reviewsResponse = await fetch(`/api/reviews?barberId=${params['id']}`)
         if (reviewsResponse.ok) {
           const reviewsData = await reviewsResponse.json()
           setReviews(reviewsData.reviews || [])
@@ -93,7 +92,7 @@ export default function BarberProfilePage() {
     }
 
     fetchBarberProfile()
-  }, [params.id])
+  }, [params['id']])
 
   const calculateAverageRating = () => {
     if (!reviews.length) return 0

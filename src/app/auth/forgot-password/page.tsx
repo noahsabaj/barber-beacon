@@ -29,7 +29,7 @@ export default function ForgotPasswordPage() {
     },
   })
 
-  const onSubmit = async (data: ForgotPasswordForm) => {
+  const onSubmit = async (_data: ForgotPasswordForm) => {
     setIsLoading(true)
     setError('')
 

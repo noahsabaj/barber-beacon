@@ -1,11 +1,11 @@
 import sgMail from '@sendgrid/mail'
 import prisma from './prisma'
 
-if (!process.env.SENDGRID_API_KEY) {
+if (!process.env['SENDGRID_API_KEY']) {
   throw new Error('SENDGRID_API_KEY is required')
 }
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+sgMail.setApiKey(process.env['SENDGRID_API_KEY']!)
 
 export async function sendConfirmationEmail(bookingId: string) {
   try {
@@ -24,7 +24,7 @@ export async function sendConfirmationEmail(bookingId: string) {
 
     const msg = {
       to: booking.customer.email,
-      from: process.env.SENDGRID_FROM_EMAIL || 'noreply@barberbeacon.com',
+      from: process.env['SENDGRID_FROM_EMAIL'] || 'noreply@barberbeacon.com',
       subject: 'Booking Confirmation - Barber Beacon',
       html: `
         <h2>Booking Confirmed!</h2>
@@ -33,7 +33,7 @@ export async function sendConfirmationEmail(bookingId: string) {
         <ul>
           <li><strong>Barber:</strong> ${booking.barber.businessName}</li>
           <li><strong>Service:</strong> ${booking.service.name}</li>
-          <li><strong>Date & Time:</strong> ${new Date(booking.dateTime).toLocaleString()}</li>
+          <li><strong>Date & Time:</strong> ${new Date(booking.scheduledTime).toLocaleString()}</li>
           <li><strong>Total Amount:</strong> $${booking.totalAmount}</li>
         </ul>
         <p>Thank you for choosing Barber Beacon!</p>
@@ -65,7 +65,7 @@ export async function sendReminderEmail(bookingId: string) {
 
     const msg = {
       to: booking.customer.email,
-      from: process.env.SENDGRID_FROM_EMAIL || 'noreply@barberbeacon.com',
+      from: process.env['SENDGRID_FROM_EMAIL'] || 'noreply@barberbeacon.com',
       subject: 'Appointment Reminder - Barber Beacon',
       html: `
         <h2>Appointment Reminder</h2>
@@ -74,7 +74,7 @@ export async function sendReminderEmail(bookingId: string) {
         <ul>
           <li><strong>Barber:</strong> ${booking.barber.businessName}</li>
           <li><strong>Service:</strong> ${booking.service.name}</li>
-          <li><strong>Date & Time:</strong> ${new Date(booking.dateTime).toLocaleString()}</li>
+          <li><strong>Date & Time:</strong> ${new Date(booking.scheduledTime).toLocaleString()}</li>
         </ul>
         <p>See you tomorrow!</p>
       `

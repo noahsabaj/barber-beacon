@@ -16,7 +16,6 @@ import {
   Clock,
   DollarSign,
   Users,
-  TrendingUp,
   Settings,
   Plus,
   Star,

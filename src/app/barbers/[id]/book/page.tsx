@@ -12,7 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Calendar } from '@/components/ui/calendar'
 import { useAuth } from '@/contexts/AuthContext'
-import { ArrowLeft, Calendar as CalendarIcon, Clock, DollarSign } from 'lucide-react'
+import { ArrowLeft, Calendar as CalendarIcon, Clock } from 'lucide-react'
 
 interface Service {
   id: string
@@ -60,19 +60,18 @@ export default function BookingPage() {
     resolver: zodResolver(bookingSchema),
     defaultValues: {
       serviceId: searchParams.get('serviceId') || '',
-      date: undefined,
       time: '',
     },
   })
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push(`/auth/login?redirect=/barbers/${params.id}/book`)
+      router.push(`/auth/login?redirect=/barbers/${params['id']}/book`)
       return
     }
 
     fetchBarberProfile()
-  }, [params.id, isAuthenticated])
+  }, [params['id'], isAuthenticated])
 
   useEffect(() => {
     if (selectedDate) {
@@ -82,7 +81,7 @@ export default function BookingPage() {
 
   const fetchBarberProfile = async () => {
     try {
-      const response = await fetch(`/api/barbers/${params.id}`)
+      const response = await fetch(`/api/barbers/${params['id']}`)
       if (!response.ok) {
         throw new Error('Barber not found')
       }
@@ -95,7 +94,7 @@ export default function BookingPage() {
     }
   }
 
-  const generateTimeSlots = (date: Date) => {
+  const generateTimeSlots = (_date: Date) => {
     // Simple time slot generation - 9 AM to 6 PM, 15-minute intervals
     const slots: string[] = []
     const startHour = 9
@@ -127,7 +126,7 @@ export default function BookingPage() {
       // Combine date and time
       const [hours, minutes] = data.time.split(':').map(Number)
       const bookingDateTime = new Date(data.date)
-      bookingDateTime.setHours(hours, minutes, 0, 0)
+      bookingDateTime.setHours(hours || 0, minutes || 0, 0, 0)
 
       const bookingData = {
         customerId: user.id,

@@ -1,21 +1,25 @@
 import jwt from 'jsonwebtoken'
 
-if (!process.env.JWT_SECRET) {
+if (!process.env['JWT_SECRET']) {
   throw new Error('JWT_SECRET is required')
 }
 
 export interface JWTPayload {
-  id: string
+  userId: string
+  id: string // Legacy support
   email: string
   role: string
+  isEmailVerified: boolean
+  iat?: number
+  exp?: number
 }
 
-export function signToken(payload: JWTPayload): string {
-  return jwt.sign(payload, process.env.JWT_SECRET!, { expiresIn: '24h' })
+export function signToken(payload: Omit<JWTPayload, 'iat' | 'exp'>): string {
+  return jwt.sign(payload, process.env['JWT_SECRET']!, { expiresIn: '24h' })
 }
 
 export function verifyToken(token: string): JWTPayload {
-  return jwt.verify(token, process.env.JWT_SECRET!) as JWTPayload
+  return jwt.verify(token, process.env['JWT_SECRET']!) as JWTPayload
 }
 
 export function extractTokenFromHeader(authorization?: string): string | null {
