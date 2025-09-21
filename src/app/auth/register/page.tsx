@@ -60,30 +60,50 @@ export default function RegisterPage() {
     try {
       const { confirmPassword, ...registerData } = data
 
+      // Convert role to uppercase for API
+      const apiData = {
+        ...registerData,
+        role: registerData.role.toUpperCase() as 'CUSTOMER' | 'BARBER',
+        phoneNumber: registerData.phone || undefined,
+        acceptedTerms: true,
+        marketingConsent: false
+      }
+
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(registerData),
+        body: JSON.stringify(apiData),
       })
 
       const result = await response.json()
 
       if (!response.ok) {
-        throw new Error(result.error || 'Registration failed')
+        // Handle API error response format
+        const errorMessage = result.error?.message || result.error || result.message || 'Registration failed'
+        throw new Error(typeof errorMessage === 'object' ? JSON.stringify(errorMessage) : errorMessage)
+      }
+
+      // Handle successful response - check for both direct fields and data wrapper
+      const userData = result.data?.user || result.user
+      const token = result.data?.accessToken || result.accessToken || result.token
+
+      if (!userData || !token) {
+        throw new Error('Invalid response from server')
       }
 
       // Update auth context
-      loginWithToken(result.user, result.token)
+      loginWithToken(userData, token)
 
       // Redirect based on user role
-      if (result.user.role === 'barber') {
+      if (userData.role === 'BARBER' || userData.role === 'barber') {
         router.push('/barber-dashboard?onboarding=true')
       } else {
         router.push('/dashboard')
       }
     } catch (error) {
+      console.error('Registration error:', error)
       setError(error instanceof Error ? error.message : 'An error occurred')
     } finally {
       setIsLoading(false)

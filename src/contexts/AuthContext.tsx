@@ -51,8 +51,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (response.ok) {
         const data = await response.json()
+        // Handle successful response - check for both direct fields and data wrapper
+        const userData = data.data?.user || data.user || data
+
         setAuthState({
-          user: data.user,
+          user: userData,
           token,
           isLoading: false,
           isAuthenticated: true
@@ -91,15 +94,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const data = await response.json()
 
       if (response.ok) {
-        localStorage.setItem('barber_beacon_token', data.token)
+        // Handle successful response - check for both direct fields and data wrapper
+        const userData = data.data?.user || data.user
+        const token = data.data?.accessToken || data.accessToken || data.token
+
+        if (!userData || !token) {
+          throw new Error('Invalid response from server')
+        }
+
+        localStorage.setItem('barber_beacon_token', token)
         setAuthState({
-          user: data.user,
-          token: data.token,
+          user: userData,
+          token: token,
           isLoading: false,
           isAuthenticated: true
         })
       } else {
-        throw new Error(data.error || 'Login failed')
+        // Handle API error response format
+        const errorMessage = data.error?.message || data.error || data.message || 'Login failed'
+        throw new Error(typeof errorMessage === 'object' ? JSON.stringify(errorMessage) : errorMessage)
       }
     } catch (error) {
       throw error
@@ -122,7 +135,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // After successful registration, log the user in
         await login(userData.email, userData.password)
       } else {
-        throw new Error(data.error || 'Registration failed')
+        // Handle API error response format
+        const errorMessage = data.error?.message || data.error || data.message || 'Registration failed'
+        throw new Error(typeof errorMessage === 'object' ? JSON.stringify(errorMessage) : errorMessage)
       }
     } catch (error) {
       throw error
