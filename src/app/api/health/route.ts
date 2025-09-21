@@ -5,7 +5,7 @@ export async function GET() {
   const health = {
     status: 'checking',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV,
+    environment: process.env['NODE_ENV'],
     checks: {
       database: false,
       databaseUrl: false,
@@ -15,8 +15,8 @@ export async function GET() {
   };
 
   // Check environment variables
-  health.checks.databaseUrl = !!process.env.DATABASE_URL;
-  health.checks.jwtSecret = !!process.env.JWT_SECRET;
+  health.checks.databaseUrl = !!process.env['DATABASE_URL'];
+  health.checks.jwtSecret = !!process.env['JWT_SECRET'];
 
   // Check database connection
   try {
@@ -29,7 +29,7 @@ export async function GET() {
     health.message = 'Database connection failed';
 
     // In development, provide more details
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env['NODE_ENV'] === 'development') {
       health.message = `Database error: ${error instanceof Error ? error.message : 'Unknown error'}`;
     }
   }
