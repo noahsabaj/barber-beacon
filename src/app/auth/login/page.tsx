@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useAuth } from '@/contexts/AuthContext'
 import { VALIDATION_RULES } from '@/lib/validation-constants'
+import Logo from '@/components/Logo'
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -54,17 +55,14 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
-          <Link href="/" className="flex items-center justify-center space-x-2 mb-6">
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">BB</span>
-            </div>
-            <span className="text-2xl font-bold text-gray-900">Barber Beacon</span>
-          </Link>
-          <h2 className="text-3xl font-bold text-gray-900">Welcome back</h2>
-          <p className="mt-2 text-gray-600">Sign in to your account</p>
+          <div className="flex justify-center mb-6">
+            <Logo size="lg" />
+          </div>
+          <h2 className="text-3xl font-bold text-barber-charcoal">Welcome Back</h2>
+          <p className="mt-2 text-muted-foreground">Sign in to book your next appointment</p>
         </div>
 
         <Card>
@@ -122,7 +120,7 @@ export default function LoginPage() {
                 <div className="flex items-center justify-between">
                   <Link
                     href="/auth/forgot-password"
-                    className="text-sm text-blue-600 hover:text-blue-500"
+                    className="text-sm text-barber-gold hover:text-barber-gold-light"
                   >
                     Forgot your password?
                   </Link>
@@ -130,7 +128,7 @@ export default function LoginPage() {
 
                 <Button
                   type="submit"
-                  className="w-full"
+                  className="w-full bg-barber-gold text-barber-charcoal hover:bg-barber-gold-light font-semibold"
                   disabled={isLoading}
                 >
                   {isLoading ? 'Signing in...' : 'Sign in'}
@@ -139,10 +137,10 @@ export default function LoginPage() {
             </Form>
 
             <div className="mt-6 text-center">
-              <span className="text-gray-600">Don't have an account? </span>
+              <span className="text-muted-foreground">Don't have an account? </span>
               <Link
                 href="/auth/register"
-                className="text-blue-600 hover:text-blue-500 font-medium"
+                className="text-barber-gold hover:text-barber-gold-light font-medium"
               >
                 Sign up
               </Link>

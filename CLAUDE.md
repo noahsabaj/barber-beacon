@@ -412,6 +412,279 @@ npm run typecheck
 - Check webhook endpoint URL
 - Monitor Stripe dashboard for events
 
+## 🛡️ **ANTI-SLOP GUIDELINES: Preventing AI Code Disasters**
+
+### ⚠️ CRITICAL: These Rules Prevent Production Disasters
+
+**CONTEXT**: Research shows AI-generated code has 40% security vulnerability rate, causes 19% productivity loss, and creates 8x more duplicate code. These guidelines are NOT optional - they prevent us from creating unmaintainable, insecure garbage in our Barber Beacon platform.
+
+---
+
+### 🚫 **RULE 1: NO VIBECODING - EVER**
+
+**NEVER generate code without understanding:**
+- ❌ DO NOT write React components and "see if they render"
+- ❌ DO NOT iterate blindly based on TypeScript errors
+- ❌ DO NOT generate entire API routes without explaining the architecture
+
+**ALWAYS before writing code:**
+- ✅ EXPLAIN the approach and why it will work
+- ✅ IDENTIFY potential edge cases and failure modes
+- ✅ VERIFY understanding of existing code patterns first
+
+---
+
+### 🔍 **RULE 2: COMPREHENSION BEFORE GENERATION**
+
+**MANDATORY before ANY code modification:**
+```bash
+# 1. Read existing code first
+cat src/app/api/auth/login/route.ts
+
+# 2. Check existing patterns
+grep -r "similar_function" src/
+
+# 3. Understand dependencies
+cat package.json | grep "relevant-package"
+```
+
+**NEVER assume availability of:**
+- Libraries (even common ones like lodash, moment.js, axios)
+- React hooks that "should" exist
+- Next.js features without checking version
+
+---
+
+### 🎯 **RULE 3: MINIMAL SCOPE, MAXIMUM CLARITY**
+
+**FORBIDDEN patterns:**
+```typescript
+// ❌ NEVER: Silent error swallowing
+try {
+  await processBooking()
+} catch {
+  // AI SLOP!
+}
+
+// ✅ ALWAYS: Explicit error handling
+try {
+  await processBooking()
+} catch (error) {
+  console.error(`Failed to process booking: ${error}`)
+  return NextResponse.json(
+    { error: 'Booking processing failed' },
+    { status: 500 }
+  )
+}
+```
+
+**MANDATORY patterns:**
+```typescript
+// ❌ NEVER: Magic numbers and unclear intent
+if (bookings.length > 10) { sendAlert() }
+
+// ✅ ALWAYS: Named constants with clear purpose
+const MAX_DAILY_BOOKINGS = 10
+if (bookings.length > MAX_DAILY_BOOKINGS) {
+  await notificationService.sendOverbookingAlert(barberId)
+}
+```
+
+---
+
+### 📝 **RULE 4: NO PLACEHOLDER CODE IN PRODUCTION**
+
+**ABSOLUTELY FORBIDDEN:**
+```typescript
+// TODO: Implement error handling
+// TODO: Add validation
+// FIXME: This might break
+async function processPayment() {
+  return { success: true } // AI SLOP!
+}
+```
+
+**If not ready to implement fully:**
+```typescript
+async function processPayment(): Promise<PaymentResult> {
+  throw new Error(
+    'processPayment not yet implemented - required: Stripe integration, validation, error handling, webhook setup'
+  )
+}
+```
+
+---
+
+### 🔒 **RULE 5: SECURITY IS NOT OPTIONAL**
+
+**NEVER generate code with:**
+- Hardcoded credentials or API keys
+- String concatenation for SQL queries
+- Unvalidated user input in API routes
+- Broad try-catch blocks
+- Permissive CORS headers (`*`)
+
+**ALWAYS verify:**
+```bash
+# Before committing ANY code
+grep -r "password\|secret\|api_key\|sk_test\|pk_test" src/ --exclude="*.example"
+grep -r "any" src/ | grep -v "// @ts-ignore"
+```
+
+---
+
+### 🧬 **RULE 6: NO CODE DUPLICATION**
+
+**Before writing ANY component or function:**
+1. Search for similar existing code
+2. Check if shadcn/ui component exists
+3. Refactor if found
+4. Only create new if genuinely unique
+
+```bash
+# MANDATORY before creating new components
+grep -r "ComponentName\|similar_concept" src/
+ls src/components/ui/
+```
+
+**If duplication detected:**
+- STOP immediately
+- Refactor existing code
+- Create shared utilities in `/lib`
+
+---
+
+### 💬 **RULE 7: COMMIT MESSAGES THAT EXPLAIN WHY**
+
+**FORBIDDEN commit messages:**
+- ❌ "Fixed stuff"
+- ❌ "Updated code"
+- ❌ "AI improvements"
+- ❌ "ChatGPT optimization"
+
+**REQUIRED format:**
+```
+type(scope): what changed and WHY
+
+- Problem: What was broken/missing
+- Solution: How this fixes it
+- Impact: What this enables/prevents
+
+Example:
+fix(auth): prevent timing attacks in password comparison
+
+- Problem: Direct string comparison vulnerable to timing attacks
+- Solution: Use bcryptjs.compare for constant-time comparison
+- Impact: Prevents password enumeration attacks
+```
+
+---
+
+### 🏗️ **RULE 8: ARCHITECTURE OVER ACCUMULATION**
+
+**Before adding ANY dependency:**
+```json
+// ❌ NEVER: Add without checking
+"dependencies": {
+  "axios": "^1.0.0",      // We already have fetch!
+  "moment": "^2.29.0",    // We already have date-fns!
+  "lodash": "^4.17.0"     // ES6 has most of this!
+}
+
+// ✅ ALWAYS: Verify first
+// 1. Check package.json for existing solutions
+// 2. Check if Next.js provides it built-in
+// 3. Verify version compatibility with Next.js 14
+```
+
+**Import discipline:**
+```typescript
+// ❌ NEVER: Wildcard imports
+import * as React from 'react'
+import * as Prisma from '@prisma/client'
+
+// ✅ ALWAYS: Precise imports
+import { useState, useEffect } from 'react'
+import { User, Booking } from '@prisma/client'
+```
+
+---
+
+### ✅ **RULE 9: VERIFICATION CHECKPOINTS**
+
+**MANDATORY after EVERY code generation:**
+
+1. **Can you explain every line?**
+   - If no → DELETE and start over
+
+2. **Would a junior dev understand this in 6 months?**
+   - If no → ADD comprehensive JSDoc comments
+
+3. **Does it handle failure cases?**
+   - If no → ADD error handling now
+
+4. **Is there a simpler approach?**
+   - If yes → REFACTOR immediately
+
+5. **Does it match existing patterns?**
+   - If no → JUSTIFY why different or CONFORM
+
+---
+
+### 🚨 **RULE 10: STOP SIGNALS**
+
+**IMMEDIATELY STOP if you find yourself:**
+- Writing React components without reading existing ones first
+- Adding try/catch without specific error handling
+- Creating files without user request
+- Generating >50 lines without explanation
+- Adding dependencies without checking package.json
+- Writing "TODO" or "FIXME" comments
+- Unable to explain what the code does
+- Using `any` type in TypeScript
+
+---
+
+### 📊 **ANTI-SLOP METRICS**
+
+**Track these in every session:**
+- Files read vs files written (should be 3:1 minimum)
+- Components reused vs created
+- Dependencies added vs existing used
+- Error cases handled vs total API routes
+- TypeScript `any` usages (should be 0)
+
+---
+
+### 🎯 **THE PRIME DIRECTIVE**
+
+> "Write code as if the person maintaining it is a violent psychopath who knows where you live."
+
+**Translation for Barber Beacon**: Every component should be obvious, every API route consistent, every edge case handled, and every decision documented.
+
+**Remember**: The code we write today becomes tomorrow's legacy nightmare. Our job is to prevent future developers from reverse-engineering our Next.js app like ancient hieroglyphics.
+
+---
+
+### 📝 **Barber Beacon Session Checklist**
+
+Before EVERY coding session, verify:
+- [ ] Run `date` command to check current date
+- [ ] Read existing code patterns first
+- [ ] Check package.json for available libraries
+- [ ] Verify shadcn/ui components available
+- [ ] Understand Prisma schema before queries
+- [ ] Plan approach with user
+- [ ] Implement incrementally
+- [ ] Run `npm run typecheck` after changes
+- [ ] Run `npm run lint` to catch issues
+- [ ] Handle all error cases in API routes
+- [ ] Document the "why" in complex logic
+- [ ] Verify no hardcoded secrets
+- [ ] Ensure no code duplication
+
+**FINAL RULE**: When in doubt, ASK THE USER. Better to clarify than create slop.
+
 ---
 
 **Built with ❤️ using Claude AI (September 2025)**

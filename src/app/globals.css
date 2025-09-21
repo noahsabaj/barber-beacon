@@ -12,57 +12,59 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
+    /* Barber Beacon Light Theme - Professional & Premium */
+    --background: 36 33% 94%; /* Cream background */
+    --foreground: 0 0% 11%; /* Charcoal text */
+    --card: 0 0% 100%; /* White cards */
+    --card-foreground: 0 0% 11%; /* Charcoal text on cards */
+    --popover: 0 0% 100%; /* White popovers */
+    --popover-foreground: 0 0% 11%; /* Charcoal text */
+    --primary: 0 0% 11%; /* Charcoal primary */
+    --primary-foreground: 36 33% 94%; /* Cream on primary */
+    --secondary: 32 54% 65%; /* Gold secondary */
+    --secondary-foreground: 0 0% 11%; /* Charcoal on secondary */
+    --muted: 36 20% 88%; /* Muted cream */
+    --muted-foreground: 0 0% 35%; /* Softer charcoal */
+    --accent: 351 72% 44%; /* Barber red accent */
+    --accent-foreground: 0 0% 100%; /* White on accent */
+    --destructive: 351 72% 44%; /* Red for errors */
+    --destructive-foreground: 0 0% 100%; /* White on destructive */
+    --border: 36 20% 85%; /* Warm gray border */
+    --input: 36 20% 90%; /* Light warm gray input */
+    --ring: 0 0% 11%; /* Charcoal focus ring */
+    --chart-1: 351 72% 44%; /* Red */
+    --chart-2: 32 54% 65%; /* Gold */
+    --chart-3: 212 51% 24%; /* Navy */
+    --chart-4: 0 0% 11%; /* Charcoal */
+    --chart-5: 36 33% 94%; /* Cream */
+    --radius: 0.375rem;
   }
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    /* Barber Beacon Dark Theme - Sophisticated Night Mode */
+    --background: 0 0% 7%; /* Near black background */
+    --foreground: 36 33% 94%; /* Cream text */
+    --card: 0 0% 11%; /* Charcoal cards */
+    --card-foreground: 36 33% 94%; /* Cream text on cards */
+    --popover: 0 0% 11%; /* Charcoal popovers */
+    --popover-foreground: 36 33% 94%; /* Cream text */
+    --primary: 32 54% 65%; /* Gold primary in dark mode */
+    --primary-foreground: 0 0% 11%; /* Charcoal on primary */
+    --secondary: 351 72% 44%; /* Red secondary in dark */
+    --secondary-foreground: 0 0% 100%; /* White on secondary */
+    --muted: 0 0% 16%; /* Slightly lighter charcoal */
+    --muted-foreground: 36 20% 70%; /* Muted cream text */
+    --accent: 32 54% 65%; /* Gold accent in dark */
+    --accent-foreground: 0 0% 11%; /* Charcoal on accent */
+    --destructive: 351 72% 44%; /* Red for errors */
+    --destructive-foreground: 0 0% 100%; /* White on destructive */
+    --border: 0 0% 20%; /* Dark border */
+    --input: 0 0% 15%; /* Dark input background */
+    --ring: 32 54% 65%; /* Gold focus ring in dark */
+    --chart-1: 351 72% 44%; /* Red */
+    --chart-2: 32 54% 65%; /* Gold */
+    --chart-3: 212 51% 40%; /* Lighter Navy */
+    --chart-4: 36 33% 94%; /* Cream */
+    --chart-5: 0 0% 30%; /* Light charcoal */
   }
 }
 

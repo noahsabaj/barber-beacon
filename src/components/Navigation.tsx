@@ -3,36 +3,32 @@
 import React from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
+import Logo from '@/components/Logo'
 
 export default function Navigation() {
   const { user, isAuthenticated, logout } = useAuth()
 
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200">
+    <nav className="bg-barber-charcoal shadow-lg border-b border-barber-gold/20">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-18 py-3">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">BB</span>
-            </div>
-            <span className="text-xl font-bold text-gray-900">Barber Beacon</span>
-          </Link>
+          <Logo size="md" />
 
           {/* Navigation Links */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link href="/barbers" className="text-gray-600 hover:text-gray-900 transition-colors">
+            <Link href="/barbers" className="text-barber-cream hover:text-barber-gold transition-colors font-medium">
               Find Barbers
             </Link>
             {isAuthenticated && (
               <>
                 {user?.role === 'customer' && (
-                  <Link href="/dashboard" className="text-gray-600 hover:text-gray-900 transition-colors">
+                  <Link href="/dashboard" className="text-barber-cream hover:text-barber-gold transition-colors font-medium">
                     My Bookings
                   </Link>
                 )}
                 {user?.role === 'barber' && (
-                  <Link href="/barber-dashboard" className="text-gray-600 hover:text-gray-900 transition-colors">
+                  <Link href="/barber-dashboard" className="text-barber-cream hover:text-barber-gold transition-colors font-medium">
                     Dashboard
                   </Link>
                 )}
@@ -45,7 +41,7 @@ export default function Navigation() {
             {isAuthenticated && (
               <Link
                 href={user?.role === 'barber' ? '/barber-dashboard' : '/dashboard'}
-                className="text-gray-600 hover:text-gray-900 transition-colors text-sm"
+                className="text-barber-cream hover:text-barber-gold transition-colors text-sm font-medium"
               >
                 Dashboard
               </Link>
@@ -56,27 +52,27 @@ export default function Navigation() {
           <div className="flex items-center space-x-4">
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
-                <span className="text-gray-700">
+                <span className="text-barber-cream/80 font-medium">
                   Welcome, {user?.firstName || user?.email}
                 </span>
                 <button
                   onClick={logout}
-                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
+                  className="bg-barber-red text-white px-5 py-2 rounded-md hover:bg-barber-red-dark transition-all hover:shadow-lg font-medium"
                 >
                   Logout
                 </button>
               </div>
             ) : (
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-3">
                 <Link
                   href="/auth/login"
-                  className="text-gray-600 hover:text-gray-900 transition-colors"
+                  className="text-barber-cream hover:text-barber-gold transition-colors font-medium"
                 >
                   Login
                 </Link>
                 <Link
                   href="/auth/register"
-                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+                  className="bg-barber-gold text-barber-charcoal px-5 py-2 rounded-md hover:bg-barber-gold-light transition-all hover:shadow-lg font-semibold"
                 >
                   Sign Up
                 </Link>

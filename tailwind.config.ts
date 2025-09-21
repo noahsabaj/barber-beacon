@@ -10,6 +10,7 @@ const config: Config = {
   theme: {
   	extend: {
   		colors: {
+  			// CSS variable-based colors for shadcn/ui compatibility
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
@@ -49,6 +50,34 @@ const config: Config = {
   				'3': 'hsl(var(--chart-3))',
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
+  			},
+  			// Barber Beacon brand colors
+  			barber: {
+  				charcoal: {
+  					DEFAULT: '#1C1C1C',
+  					light: '#2A2A2A',
+  					dark: '#0F0F0F'
+  				},
+  				red: {
+  					DEFAULT: '#C41E3A',
+  					light: '#D64A61',
+  					dark: '#9A1029'
+  				},
+  				gold: {
+  					DEFAULT: '#D4A574',
+  					light: '#E3C09F',
+  					dark: '#B8895A'
+  				},
+  				cream: {
+  					DEFAULT: '#F5F2ED',
+  					light: '#FEFDFB',
+  					dark: '#E8E2D9'
+  				},
+  				navy: {
+  					DEFAULT: '#1E3A5F',
+  					light: '#2C4F7C',
+  					dark: '#152842'
+  				}
   			}
   		},
   		borderRadius: {

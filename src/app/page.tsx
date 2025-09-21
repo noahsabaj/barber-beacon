@@ -2,143 +2,199 @@
 
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
+import { Scissors, MapPin, Calendar, Star } from 'lucide-react'
 
 export default function Home() {
   const { isAuthenticated } = useAuth()
 
   return (
-    <div className="max-w-7xl mx-auto">
-      {/* Hero Section */}
-      <div className="text-center py-20">
-        <h1 className="text-5xl font-bold text-gray-900 mb-6">
-          Find Your Perfect Barber
-        </h1>
-        <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-          Connect with professional barbers in your area. Book appointments, view portfolios,
-          and leave reviews all in one place.
-        </p>
+    <div className="-mt-8">
+      {/* Hero Section with Barber Pole Pattern */}
+      <div className="relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 bg-gradient-to-br from-barber-charcoal to-barber-charcoal-light">
+          {/* Subtle Barber Pole Stripes */}
+          <div
+            className="absolute inset-0 opacity-5"
+            style={{
+              backgroundImage: `repeating-linear-gradient(
+                45deg,
+                #C41E3A,
+                #C41E3A 10px,
+                #FFFFFF 10px,
+                #FFFFFF 20px,
+                #1E3A5F 20px,
+                #1E3A5F 30px,
+                #FFFFFF 30px,
+                #FFFFFF 40px
+              )`,
+            }}
+          />
+        </div>
 
-        {!isAuthenticated ? (
-          <div className="flex justify-center space-x-4">
-            <Link
-              href="/auth/register"
-              className="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors"
-            >
-              Get Started
-            </Link>
-            <Link
-              href="/barbers"
-              className="border border-gray-300 text-gray-700 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-50 transition-colors"
-            >
-              Browse Barbers
-            </Link>
+        {/* Hero Content */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 py-24 sm:px-6 lg:px-8">
+          <div className="text-center">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 bg-barber-gold/10 border border-barber-gold/20 rounded-full px-4 py-2 mb-6">
+              <Scissors className="w-4 h-4 text-barber-gold" />
+              <span className="text-sm font-medium text-barber-gold">Premium Barber Network</span>
+            </div>
+
+            {/* Main Headline */}
+            <h1 className="text-5xl md:text-6xl font-bold mb-6">
+              <span className="text-barber-cream">Find Your</span>
+              <br />
+              <span className="text-barber-gold">Perfect Cut</span>
+            </h1>
+
+            {/* Subheadline */}
+            <p className="text-xl text-barber-cream/80 mb-10 max-w-2xl mx-auto leading-relaxed">
+              Connect with master barbers in your area. Real-time booking, authentic reviews,
+              and the guarantee of a premium grooming experience.
+            </p>
+
+            {/* CTA Buttons */}
+            {!isAuthenticated ? (
+              <div className="flex flex-col sm:flex-row justify-center gap-4">
+                <Link
+                  href="/auth/register"
+                  className="bg-barber-gold text-barber-charcoal px-8 py-4 rounded-md text-lg font-semibold hover:bg-barber-gold-light transition-all hover:shadow-xl transform hover:-translate-y-0.5"
+                >
+                  Book Your First Cut
+                </Link>
+                <Link
+                  href="/barbers"
+                  className="border-2 border-barber-gold/50 text-barber-cream px-8 py-4 rounded-md text-lg font-semibold hover:bg-barber-gold/10 transition-all"
+                >
+                  Browse Barbers
+                </Link>
+              </div>
+            ) : (
+              <div className="flex flex-col sm:flex-row justify-center gap-4">
+                <Link
+                  href="/barbers"
+                  className="bg-barber-gold text-barber-charcoal px-8 py-4 rounded-md text-lg font-semibold hover:bg-barber-gold-light transition-all hover:shadow-xl transform hover:-translate-y-0.5"
+                >
+                  Find Barbers Near You
+                </Link>
+                <Link
+                  href="/bookings"
+                  className="border-2 border-barber-gold/50 text-barber-cream px-8 py-4 rounded-md text-lg font-semibold hover:bg-barber-gold/10 transition-all"
+                >
+                  My Appointments
+                </Link>
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="flex justify-center space-x-4">
-            <Link
-              href="/barbers"
-              className="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors"
-            >
-              Find Barbers
-            </Link>
-            <Link
-              href="/bookings"
-              className="border border-gray-300 text-gray-700 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-50 transition-colors"
-            >
-              My Bookings
-            </Link>
-          </div>
-        )}
+        </div>
       </div>
 
       {/* Features Section */}
-      <div className="py-20 bg-white rounded-lg shadow-sm">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Why Choose Barber Beacon?</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            We make it easy to find, book, and connect with professional barbers in your area.
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-8 px-8">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Location-Based Search</h3>
-            <p className="text-gray-600">
-              Find barbers within your preferred radius with real-time distance calculations.
+      <div className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-barber-charcoal mb-4">
+              The <span className="text-barber-gold">Premium</span> Experience
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              We're not just another booking platform. We're your gateway to exceptional grooming.
             </p>
           </div>
 
-          <div className="text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="group text-center p-6 rounded-xl hover:bg-barber-cream transition-all duration-300">
+              <div className="w-16 h-16 bg-barber-gold/10 rounded-lg flex items-center justify-center mx-auto mb-4 group-hover:bg-barber-gold/20 transition-colors">
+                <MapPin className="w-8 h-8 text-barber-gold" />
+              </div>
+              <h3 className="text-xl font-semibold text-barber-charcoal mb-3">
+                Location Intelligence
+              </h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Smart proximity search finds the best barbers near you. Real-time availability and distance tracking.
+              </p>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Real-Time Booking</h3>
-            <p className="text-gray-600">
-              Book appointments instantly with 15-minute time slot granularity and automated confirmations.
-            </p>
-          </div>
 
-          <div className="text-center">
-            <div className="w-16 h-16 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-              </svg>
+            <div className="group text-center p-6 rounded-xl hover:bg-barber-cream transition-all duration-300">
+              <div className="w-16 h-16 bg-barber-red/10 rounded-lg flex items-center justify-center mx-auto mb-4 group-hover:bg-barber-red/20 transition-colors">
+                <Calendar className="w-8 h-8 text-barber-red" />
+              </div>
+              <h3 className="text-xl font-semibold text-barber-charcoal mb-3">
+                Instant Booking
+              </h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Book your cut in seconds. 15-minute precision slots, automated confirmations, and SMS reminders.
+              </p>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Integrated Payments</h3>
-            <p className="text-gray-600">
-              Secure payment processing with Stripe - no third-party redirects or hidden fees.
-            </p>
+
+            <div className="group text-center p-6 rounded-xl hover:bg-barber-cream transition-all duration-300">
+              <div className="w-16 h-16 bg-barber-navy/10 rounded-lg flex items-center justify-center mx-auto mb-4 group-hover:bg-barber-navy/20 transition-colors">
+                <Star className="w-8 h-8 text-barber-navy" />
+              </div>
+              <h3 className="text-xl font-semibold text-barber-charcoal mb-3">
+                Verified Quality
+              </h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Authentic reviews from real customers. Portfolio showcases and certified master barbers.
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Stats Section */}
-      <div className="py-20 text-center">
-        <div className="grid md:grid-cols-3 gap-8">
-          <div>
-            <div className="text-4xl font-bold text-blue-600 mb-2">500+</div>
-            <div className="text-gray-600">Professional Barbers</div>
-          </div>
-          <div>
-            <div className="text-4xl font-bold text-green-600 mb-2">10,000+</div>
-            <div className="text-gray-600">Happy Customers</div>
-          </div>
-          <div>
-            <div className="text-4xl font-bold text-purple-600 mb-2">4.8★</div>
-            <div className="text-gray-600">Average Rating</div>
+      <div className="py-20 bg-barber-charcoal">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-3 gap-8 text-center">
+            <div className="group">
+              <div className="text-5xl font-bold text-barber-gold mb-2 group-hover:scale-110 transition-transform">
+                500+
+              </div>
+              <div className="text-barber-cream/80 text-lg">Master Barbers</div>
+            </div>
+            <div className="group">
+              <div className="text-5xl font-bold text-barber-red mb-2 group-hover:scale-110 transition-transform">
+                10,000+
+              </div>
+              <div className="text-barber-cream/80 text-lg">Perfect Cuts</div>
+            </div>
+            <div className="group">
+              <div className="text-5xl font-bold text-barber-gold mb-2 group-hover:scale-110 transition-transform">
+                4.8★
+              </div>
+              <div className="text-barber-cream/80 text-lg">Client Satisfaction</div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* CTA Section */}
-      <div className="bg-blue-600 text-white rounded-lg p-12 text-center">
-        <h2 className="text-3xl font-bold mb-4">Ready to Get Started?</h2>
-        <p className="text-xl mb-8 opacity-90">
-          Join thousands of satisfied customers and find your perfect barber today.
-        </p>
-        {!isAuthenticated ? (
-          <Link
-            href="/auth/register"
-            className="bg-white text-blue-600 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-colors"
-          >
-            Sign Up Now
-          </Link>
-        ) : (
-          <Link
-            href="/barbers"
-            className="bg-white text-blue-600 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-colors"
-          >
-            Find Barbers Near You
-          </Link>
-        )}
+      <div className="py-24">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-gradient-to-r from-barber-gold to-barber-gold-dark rounded-2xl p-12 text-center shadow-2xl">
+            <h2 className="text-4xl font-bold text-barber-charcoal mb-4">
+              Your Next Great Cut Awaits
+            </h2>
+            <p className="text-xl text-barber-charcoal/80 mb-8 max-w-2xl mx-auto">
+              Join the elite grooming experience. Book with verified professionals who take pride in their craft.
+            </p>
+            {!isAuthenticated ? (
+              <Link
+                href="/auth/register"
+                className="inline-block bg-barber-charcoal text-barber-cream px-8 py-4 rounded-md text-lg font-semibold hover:bg-barber-charcoal-dark transition-all hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                Join Barber Beacon
+              </Link>
+            ) : (
+              <Link
+                href="/barbers"
+                className="inline-block bg-barber-charcoal text-barber-cream px-8 py-4 rounded-md text-lg font-semibold hover:bg-barber-charcoal-dark transition-all hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                Book Your Appointment
+              </Link>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   )

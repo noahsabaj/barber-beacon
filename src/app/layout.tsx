@@ -31,7 +31,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
-          <div className="min-h-screen bg-gray-50">
+          <div className="min-h-screen bg-background">
             <Navigation />
             <main className="container mx-auto px-4 py-8">
               {children}
