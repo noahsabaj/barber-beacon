@@ -33,6 +33,14 @@ async function registerHandler(request: NextRequest): Promise<Response> {
   try {
     const body = await request.json() as RegisterRequestDTO;
 
+    // Log request details in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Register] Request received:', {
+        email: body.email,
+        role: body.role,
+        timestamp: new Date().toISOString()
+      });
+    }
 
     // Register user using AuthService
     const result = await authService.registerUser({
@@ -64,8 +72,32 @@ async function registerHandler(request: NextRequest): Promise<Response> {
     );
 
   } catch (error) {
-    // The error handling is managed by the validation middleware
-    // and the ApiError classes will format the response correctly
+    // Log error details for debugging
+    console.error('[Register] Error:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString()
+    });
+
+    // Handle Prisma connection errors specifically
+    if (error instanceof Error) {
+      if (error.message.includes('P1001') || error.message.includes('connect')) {
+        return ApiResponse.error(
+          'Database connection failed. Please try again later.',
+          503,
+          'DATABASE_CONNECTION_ERROR'
+        );
+      }
+      if (error.message.includes('P2002') || error.message.includes('Unique constraint')) {
+        return ApiResponse.error(
+          'An account with this email already exists.',
+          409,
+          'EMAIL_ALREADY_EXISTS'
+        );
+      }
+    }
+
+    // Re-throw to let middleware handle other errors
     throw error;
   }
 }

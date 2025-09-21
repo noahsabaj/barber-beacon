@@ -33,6 +33,14 @@ async function loginHandler(request: NextRequest): Promise<Response> {
   try {
     const body = await request.json() as LoginRequestDTO;
 
+    // Log request details in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Login] Request received:', {
+        email: body.email,
+        timestamp: new Date().toISOString()
+      });
+    }
+
     // Extract device info for security logging
     const deviceInfo = {
       userAgent: request.headers.get('user-agent') || 'unknown',
@@ -76,8 +84,33 @@ async function loginHandler(request: NextRequest): Promise<Response> {
     return ApiResponse.success(responseData, message, 200);
 
   } catch (error) {
-    // The error handling is managed by the validation middleware
-    // and the ApiError classes will format the response correctly
+    // Log error details for debugging
+    console.error('[Login] Error:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString()
+    });
+
+    // Handle Prisma connection errors specifically
+    if (error instanceof Error) {
+      if (error.message.includes('P1001') || error.message.includes('connect')) {
+        return ApiResponse.error(
+          'Database connection failed. Please try again later.',
+          503,
+          'DATABASE_CONNECTION_ERROR'
+        );
+      }
+      // Handle authentication errors
+      if (error.message.includes('Invalid email or password')) {
+        return ApiResponse.error(
+          'Invalid email or password.',
+          401,
+          'INVALID_CREDENTIALS'
+        );
+      }
+    }
+
+    // Re-throw to let middleware handle other errors
     throw error;
   }
 }
