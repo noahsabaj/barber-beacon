@@ -97,11 +97,11 @@ export default function Logo({
       </div>
 
       {showText && (
-        <div className="flex flex-col leading-none">
+        <div className="flex items-baseline gap-1">
           <span className={`${sizes[size].text} font-bold text-barber-charcoal dark:text-barber-cream`}>
             Barber
           </span>
-          <span className={`${sizes[size].text} font-light text-barber-gold-dark dark:text-barber-gold`}>
+          <span className={`${sizes[size].text} font-light text-barber-gold dark:text-barber-gold`}>
             Beacon
           </span>
         </div>
