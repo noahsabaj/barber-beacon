@@ -15,6 +15,7 @@ import {
   verifyToken as verifyRefreshToken
 } from '../../jwt';
 import { validatePassword, VALIDATION_RULES } from '../../validation-constants';
+import { PublicUserProfile } from '../types/entities';
 
 // For now, use the same function for refresh tokens
 const generateRefreshToken = generateAccessToken;
@@ -42,7 +43,7 @@ export interface LoginParams {
 }
 
 export interface LoginResult {
-  user: Omit<User, 'password'>;
+  user: PublicUserProfile;
   accessToken: string;
   refreshToken: string;
   expiresAt: Date;
@@ -439,7 +440,7 @@ export class AuthService {
   }
 
   // Verify email address
-  async verifyEmail(token: string): Promise<Omit<User, 'password'>> {
+  async verifyEmail(token: string): Promise<PublicUserProfile> {
     const startTime = Date.now();
 
     try {
@@ -660,9 +661,17 @@ export class AuthService {
   }
 
   // Private helper methods
-  private excludePasswordFromUser(user: User): Omit<User, 'password'> {
-    const { password, ...userWithoutPassword } = user;
-    return userWithoutPassword;
+  private excludePasswordFromUser(user: User): PublicUserProfile {
+    return {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.role as UserRole,
+      isEmailVerified: user.isEmailVerified,
+      phoneNumber: user.phone || user.phoneNumber,
+      createdAt: user.createdAt,
+    };
   }
 
   private async storeRefreshToken(userId: string, token: string, expiryDays: number = 30): Promise<void> {
