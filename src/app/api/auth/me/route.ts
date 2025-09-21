@@ -1,50 +1,126 @@
-import { NextRequest, NextResponse } from 'next/server'
-import prisma from '@/lib/prisma'
-import { verifyToken, extractTokenFromHeader } from '@/lib/jwt'
+import { NextRequest } from 'next/server';
+import { ApiResponse } from '@/lib/api/base/ApiResponse';
+import { UserRepository } from '@/lib/api/repositories/UserRepository';
+import { CacheManager } from '@/lib/api/base/CacheManager';
+import { MetricsCollector } from '@/lib/api/base/MetricsCollector';
+import { withRateLimit } from '@/lib/api/middleware/rateLimitMiddleware';
+import { PublicUserProfile } from '@/lib/api/types/entities';
+import { AuthenticationError, NotFoundError } from '@/lib/api/base/ApiError';
+import { verifyToken } from '@/lib/jwt';
+import prisma from '@/lib/prisma';
 
-export async function GET(request: NextRequest) {
+// Initialize services
+const cacheManager = new CacheManager();
+const metricsCollector = new MetricsCollector();
+const userRepository = new UserRepository(prisma);
+
+async function getCurrentUserHandler(request: NextRequest): Promise<Response> {
   try {
-    const token = extractTokenFromHeader(request.headers.get('authorization') || undefined)
-
-    if (!token) {
-      return NextResponse.json({ error: 'No token provided' }, { status: 401 })
+    // Extract token from Authorization header
+    const authHeader = request.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new AuthenticationError('No valid authorization token provided');
     }
 
-    const decoded = verifyToken(token)
+    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
 
-    // Get user from database
-    const user = await prisma.user.findUnique({
-      where: { id: decoded.id },
-      include: {
-        barberProfile: {
-          include: {
-            services: true
-          }
-        }
-      }
-    })
+    // Verify and decode token
+    let decoded;
+    try {
+      decoded = verifyToken(token);
+    } catch (error) {
+      throw new AuthenticationError('Invalid or expired token');
+    }
 
+    // Get user from database with related data
+    const user = await userRepository.findById(decoded.userId || decoded.id);
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+      throw new NotFoundError('User not found');
     }
 
-    // Remove password from response
-    const userWithoutPassword = {
+    // Get additional profile data based on user role
+    let profileData = null;
+    if (user.role === 'BARBER') {
+      try {
+        const barberProfile = await prisma.barberProfile.findUnique({
+          where: { userId: user.id },
+          include: {
+            services: {
+              where: { isActive: true },
+              orderBy: { name: 'asc' }
+            }
+          }
+        });
+        profileData = barberProfile;
+      } catch (error) {
+        // Continue without barber profile if not found
+      }
+    }
+
+    // Create public user profile
+    const publicUser: PublicUserProfile = {
       id: user.id,
-      email: user.email,
-      role: user.role,
       firstName: user.firstName,
       lastName: user.lastName,
-      phone: user.phone,
-      address: user.address,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      barberProfile: user.barberProfile
-    }
+      email: user.email,
+      role: user.role,
+      isEmailVerified: user.isEmailVerified,
+      phoneNumber: user.phoneNumber,
+      createdAt: user.createdAt
+    };
 
-    return NextResponse.json({ user: userWithoutPassword }, { status: 200 })
+    // Add profile data if available
+    const responseData = {
+      user: publicUser,
+      ...(profileData && { barberProfile: profileData }),
+      lastActivity: new Date().toISOString()
+    };
+
+    // Update last activity in cache
+    await cacheManager.set(
+      `user_activity:${user.id}`,
+      new Date(),
+      300 // 5 minutes
+    );
+
+    // Record metrics
+    metricsCollector.recordUserAction('get_current_user', user.id);
+
+    return ApiResponse.success(
+      responseData,
+      'User information retrieved successfully'
+    );
+
   } catch (error) {
-    console.error('Auth verification error:', error)
-    return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+    // The error handling is managed by the middleware
+    // and the ApiError classes will format the response correctly
+    throw error;
   }
 }
+
+// Apply middleware chain
+const handler = withRateLimit({
+  maxRequests: 60,
+  windowMs: 60 * 1000, // 1 minute
+  skipSuccessfulRequests: true,
+  keyGenerator: (request: NextRequest) => {
+    // Rate limit by user token if available, otherwise by IP
+    const authHeader = request.headers.get('authorization');
+    if (authHeader) {
+      try {
+        const token = authHeader.substring(7);
+        const decoded = verifyToken(token);
+        return `auth_me:${decoded.userId || decoded.id}`;
+      } catch {
+        // Fall back to IP-based rate limiting
+      }
+    }
+
+    const ip = request.headers.get('x-forwarded-for') ||
+               request.headers.get('x-real-ip') ||
+               'unknown';
+    return `auth_me:${ip}`;
+  }
+})(getCurrentUserHandler);
+
+export { handler as GET };

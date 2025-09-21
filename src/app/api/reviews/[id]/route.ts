@@ -4,7 +4,7 @@ import { verifyToken, extractTokenFromHeader } from '@/lib/jwt'
 import { validateReviewData } from '@/lib/validation'
 
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -26,7 +26,7 @@ export async function GET(
         },
         booking: {
           select: {
-            dateTime: true,
+            scheduledTime: true,
             service: {
               select: {
                 name: true,
@@ -115,7 +115,7 @@ export async function PUT(
         },
         booking: {
           select: {
-            dateTime: true,
+            scheduledTime: true,
             service: {
               select: {
                 name: true,

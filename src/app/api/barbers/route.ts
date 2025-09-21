@@ -1,134 +1,179 @@
-import { NextRequest, NextResponse } from 'next/server'
-import prisma from '@/lib/prisma'
+import { NextRequest } from 'next/server';
+import { ApiResponse } from '@/lib/api/base/ApiResponse';
+import { BarberRepository } from '@/lib/api/repositories/BarberRepository';
+import { CacheManager } from '@/lib/api/base/CacheManager';
+import { MetricsCollector } from '@/lib/api/base/MetricsCollector';
+import { withValidation } from '@/lib/api/middleware/validationMiddleware';
+import { withRateLimit } from '@/lib/api/middleware/rateLimitMiddleware';
+import { BarberValidationSchemas } from '@/lib/api/schemas/barberSchemas';
+import {
+  SearchBarbersResponseDTO
+} from '@/lib/api/types/api-dtos';
+import { ValidationError } from '@/lib/api/base/ApiError';
+import { Location, SearchFilters } from '@/lib/api/types/entities';
+import prisma from '@/lib/prisma';
 
-function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
-  const R = 3959 // Earth's radius in miles
-  const dLat = (lat2 - lat1) * Math.PI / 180
-  const dLng = (lng2 - lng1) * Math.PI / 180
-  const a =
-    Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLng/2) * Math.sin(dLng/2)
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
-  return R * c
-}
+// Initialize services
+const cacheManager = new CacheManager();
+const metricsCollector = new MetricsCollector();
+const barberRepository = new BarberRepository(prisma, cacheManager, metricsCollector);
 
-export async function GET(request: NextRequest) {
+async function searchBarbersHandler(request: NextRequest): Promise<Response> {
   try {
-    const { searchParams } = new URL(request.url)
-    const location = searchParams.get('location')
-    const radius = parseFloat(searchParams.get('radius') || '25')
-    const service = searchParams.get('service')
-    const minPrice = parseFloat(searchParams.get('minPrice') || '0')
-    const maxPrice = parseFloat(searchParams.get('maxPrice') || '1000')
+    const { searchParams } = new URL(request.url);
 
-    // Validate location parameter
-    if (!location) {
-      return NextResponse.json({ error: 'Location parameter is required (format: lat,lng)' }, { status: 400 })
+    // Parse and validate location
+    const locationParam = searchParams.get('location');
+    if (!locationParam) {
+      throw new ValidationError('Location parameter is required (format: lat,lng)');
     }
 
-    const [latStr, lngStr] = location.split(',')
-    const lat = parseFloat(latStr)
-    const lng = parseFloat(lngStr)
-
-    if (isNaN(lat) || isNaN(lng)) {
-      return NextResponse.json({ error: 'Invalid location format. Use: lat,lng' }, { status: 400 })
+    const [latStr, lngStr] = locationParam.split(',');
+    if (!latStr || !lngStr) {
+      throw new ValidationError('Invalid location format. Use: lat,lng');
     }
+    const latitude = parseFloat(latStr);
+    const longitude = parseFloat(lngStr);
+
+    if (isNaN(latitude) || isNaN(longitude)) {
+      throw new ValidationError('Invalid location format. Use: lat,lng');
+    }
+
+    // Parse other search parameters
+    const radius = parseFloat(searchParams.get('radius') || '25');
+    const query = searchParams.get('query') || undefined;
+    const serviceTypes = searchParams.get('serviceTypes')?.split(',') || undefined;
+    const minRating = searchParams.get('minRating') ? parseFloat(searchParams.get('minRating')!) : undefined;
+    const minPrice = searchParams.get('minPrice') ? parseFloat(searchParams.get('minPrice')!) : undefined;
+    const maxPrice = searchParams.get('maxPrice') ? parseFloat(searchParams.get('maxPrice')!) : undefined;
+    const sortBy = searchParams.get('sortBy') as 'distance' | 'rating' | 'price' | 'availability' | 'newest' || 'distance';
+    const sortOrder = searchParams.get('sortOrder') as 'asc' | 'desc' || 'asc';
 
     // Validate radius
-    if (radius < 1 || radius > 25) {
-      return NextResponse.json({ error: 'Radius must be between 1 and 25 miles' }, { status: 400 })
+    if (radius < 1 || radius > 50) {
+      throw new ValidationError('Radius must be between 1 and 50 kilometers');
     }
 
-    // Build filter conditions
-    const whereConditions: Record<string, unknown> = {}
-
-    if (service) {
-      whereConditions.services = {
-        some: {
-          category: service
+    // Build search request
+    const location: Location = { latitude, longitude };
+    const filters: SearchFilters = {
+      location,
+      radius,
+      sortBy,
+      sortOrder,
+      ...(query && { query }),
+      ...(serviceTypes && { serviceTypes }),
+      ...(minRating && { rating: minRating }),
+      ...((minPrice || maxPrice) && {
+        priceRange: {
+          min: minPrice || 0,
+          max: maxPrice || 10000
         }
-      }
-    }
+      })
+    };
 
-    // Get all barber profiles with services
-    const allBarbers = await prisma.barberProfile.findMany({
-      where: whereConditions,
-      include: {
-        user: {
-          select: {
-            firstName: true,
-            lastName: true,
-            phone: true
-          }
-        },
-        services: {
-          where: {
-            price: {
-              gte: minPrice,
-              lte: maxPrice
-            }
-          }
-        },
-        reviews: {
-          select: {
-            rating: true
-          }
-        }
-      }
-    })
 
-    // Filter by distance and calculate average rating
-    const barbersWithinRadius = allBarbers.filter(barber => {
-      const barberLocation = barber.location as { lat: number; lng: number }
-      const distance = calculateDistance(lat, lng, barberLocation.lat, barberLocation.lng)
-      return distance <= radius
-    }).map(barber => {
-      const barberLocation = barber.location as { lat: number; lng: number }
-      const distance = calculateDistance(lat, lng, barberLocation.lat, barberLocation.lng)
+    // Search barbers using BarberRepository
+    const searchResult = await barberRepository.searchByLocation({
+      latitude,
+      longitude,
+      radiusKm: radius,
+      ...(serviceTypes && { serviceTypes }),
+      ...(minRating !== undefined && { minRating }),
+      ...(maxPrice !== undefined && { maxPrice }),
+      sortBy: sortBy === 'availability' || sortBy === 'newest' ? 'distance' : sortBy,
+      sortOrder
+    });
 
-      // Calculate average rating
-      const ratings = barber.reviews.map(review => review.rating)
-      const averageRating = ratings.length > 0
-        ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length
-        : 0
-
-      return {
+    // Format response
+    const responseData: SearchBarbersResponseDTO = {
+      barbers: searchResult.data.map(barber => ({
         id: barber.id,
         businessName: barber.businessName,
-        bio: barber.bio,
-        location: barber.location,
-        distance: Math.round(distance * 10) / 10, // Round to 1 decimal place
-        hourlyRate: barber.hourlyRate,
-        portfolio: barber.portfolio,
-        workingHours: barber.workingHours,
-        averageRating: Math.round(averageRating * 10) / 10,
-        reviewCount: barber.reviews.length,
-        services: barber.services,
-        contact: {
-          firstName: barber.user.firstName,
-          lastName: barber.user.lastName,
-          phone: barber.user.phone
-        }
+        address: barber.address || '',
+        city: barber.city || '',
+        state: barber.state || '',
+        rating: barber.rating,
+        reviewCount: barber.reviewCount,
+        portfolioImages: barber.portfolioImages || [],
+        specialties: barber.specialties || [],
+        amenities: barber.amenities || [],
+        distance: barber.distance,
+        matchScore: calculateMatchScore(barber, filters)
+      })),
+      pagination: {
+        ...searchResult.pagination,
+        hasNextPage: searchResult.pagination.hasNext,
+        hasPreviousPage: searchResult.pagination.hasPrev
+      },
+      searchMetadata: {
+        ...(query && { query }),
+        location,
+        totalResults: searchResult.pagination.total,
+        searchTime: Date.now() - Date.now() // This would be calculated properly
       }
-    })
+    };
 
-    // Sort by distance
-    barbersWithinRadius.sort((a, b) => a.distance - b.distance)
-
-    return NextResponse.json({
-      barbers: barbersWithinRadius,
-      total: barbersWithinRadius.length,
-      searchCriteria: {
-        location: { lat, lng },
-        radius,
-        service,
-        priceRange: { min: minPrice, max: maxPrice }
-      }
-    }, { status: 200 })
+    return ApiResponse.success(
+      responseData,
+      `Found ${responseData.barbers.length} barbers within ${radius}km`
+    );
 
   } catch (error) {
-    console.error('Barber search error:', error)
-    return NextResponse.json({ error: 'Search failed' }, { status: 500 })
+    throw error;
   }
 }
+
+// Calculate match score based on search criteria
+function calculateMatchScore(barber: any, filters: SearchFilters): number {
+  let score = 100;
+
+  // Distance score (closer = higher score)
+  if (barber.distance) {
+    const maxDistance = filters.radius || 25;
+    const distanceScore = Math.max(0, 100 - (barber.distance / maxDistance) * 50);
+    score = (score + distanceScore) / 2;
+  }
+
+  // Rating score
+  if (barber.rating) {
+    const ratingScore = (barber.rating / 5) * 100;
+    score = (score + ratingScore) / 2;
+  }
+
+  // Query match score
+  if (filters.query) {
+    const queryLower = filters.query.toLowerCase();
+    const businessNameMatch = barber.businessName?.toLowerCase().includes(queryLower);
+    const descriptionMatch = barber.description?.toLowerCase().includes(queryLower);
+    const specialtyMatch = barber.specialties?.some((s: string) =>
+      s.toLowerCase().includes(queryLower)
+    );
+
+    if (businessNameMatch || descriptionMatch || specialtyMatch) {
+      score += 10;
+    }
+  }
+
+  return Math.min(100, Math.round(score));
+}
+
+// Apply middleware chain
+const handler = withRateLimit({
+  maxRequests: 100,
+  windowMs: 60 * 1000, // 1 minute
+  skipSuccessfulRequests: true,
+  keyGenerator: (request: NextRequest) => {
+    const ip = request.headers.get('x-forwarded-for') ||
+               request.headers.get('x-real-ip') ||
+               'unknown';
+    return `search_barbers:${ip}`;
+  }
+})(
+  withValidation(BarberValidationSchemas.searchBarbers, {
+    validateResponse: true,
+    skipBodyValidation: true // GET request uses query params
+  })(searchBarbersHandler)
+);
+
+export { handler as GET };

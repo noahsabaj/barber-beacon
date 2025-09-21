@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if booking is completed
-    if (booking.status !== 'completed') {
+    if (booking.status !== 'COMPLETED') {
       return NextResponse.json({ error: 'Only completed bookings can be reviewed' }, { status: 400 })
     }
 
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
         },
         booking: {
           select: {
-            dateTime: true,
+            scheduledTime: true,
             service: {
               select: {
                 name: true
@@ -104,7 +104,7 @@ export async function GET(request: NextRequest) {
     const whereConditions: Record<string, unknown> = {}
 
     if (barberId) {
-      whereConditions.barberId = barberId
+      whereConditions['barberId'] = barberId
     }
 
     const reviews = await prisma.review.findMany({
@@ -118,7 +118,7 @@ export async function GET(request: NextRequest) {
         },
         booking: {
           select: {
-            dateTime: true,
+            scheduledTime: true,
             service: {
               select: {
                 name: true,

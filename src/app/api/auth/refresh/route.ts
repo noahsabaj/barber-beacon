@@ -8,7 +8,7 @@ import { MetricsCollector } from '@/lib/api/base/MetricsCollector';
 import { withValidation } from '@/lib/api/middleware/validationMiddleware';
 import { withRateLimit } from '@/lib/api/middleware/rateLimitMiddleware';
 import { AuthValidationSchemas } from '@/lib/api/schemas/authSchemas';
-import { RegisterRequestDTO, RegisterResponseDTO } from '@/lib/api/types/api-dtos';
+import { RefreshTokenRequestDTO, RefreshTokenResponseDTO } from '@/lib/api/types/api-dtos';
 import prisma from '@/lib/prisma';
 
 // Initialize services
@@ -29,57 +29,45 @@ const authService = new AuthService(
   notificationService
 );
 
-async function registerHandler(request: NextRequest): Promise<Response> {
+async function refreshTokenHandler(request: NextRequest): Promise<Response> {
   try {
-    const body = await request.json() as RegisterRequestDTO;
+    const body = await request.json() as RefreshTokenRequestDTO;
 
-
-    // Register user using AuthService
-    const result = await authService.registerUser({
-      email: body.email,
-      password: body.password,
-      firstName: body.firstName,
-      lastName: body.lastName,
-      role: body.role,
-      phoneNumber: body.phoneNumber,
-      acceptedTerms: body.acceptedTerms,
-      marketingConsent: body.marketingConsent
-    });
+    // Refresh access token using AuthService
+    const result = await authService.refreshAccessToken(body.refreshToken);
 
     // Format response
-    const responseData: RegisterResponseDTO = {
-      user: result.user,
+    const responseData: RefreshTokenResponseDTO = {
       accessToken: result.accessToken,
-      refreshToken: result.refreshToken,
-      expiresAt: result.expiresAt.toISOString(),
-      requiresVerification: result.requiresVerification || false
+      expiresAt: result.expiresAt.toISOString()
     };
 
     return ApiResponse.success(
       responseData,
-      result.requiresVerification
-        ? 'Registration successful. Please check your email to verify your account.'
-        : 'Registration successful.',
-      201
+      'Access token refreshed successfully'
     );
 
   } catch (error) {
-    // The error handling is managed by the validation middleware
-    // and the ApiError classes will format the response correctly
     throw error;
   }
 }
 
 // Apply middleware chain
 const handler = withRateLimit({
-  maxRequests: 5,
+  maxRequests: 20,
   windowMs: 15 * 60 * 1000, // 15 minutes
-  skipSuccessfulRequests: true
+  skipSuccessfulRequests: true,
+  keyGenerator: (request: NextRequest) => {
+    const ip = request.headers.get('x-forwarded-for') ||
+               request.headers.get('x-real-ip') ||
+               'unknown';
+    return `refresh:${ip}`;
+  }
 })(
-  withValidation(AuthValidationSchemas.register, {
+  withValidation(AuthValidationSchemas.refreshToken, {
     validateBody: true,
     validateResponse: true
-  })(registerHandler)
+  })(refreshTokenHandler)
 );
 
 export { handler as POST };

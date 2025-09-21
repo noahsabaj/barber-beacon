@@ -24,14 +24,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No Stripe signature found' }, { status: 400 })
     }
 
-    if (!process.env.STRIPE_WEBHOOK_SECRET) {
+    if (!process.env['STRIPE_WEBHOOK_SECRET']) {
       throw new Error('STRIPE_WEBHOOK_SECRET is not configured')
     }
 
     let event
 
     try {
-      event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET)
+      event = stripe.webhooks.constructEvent(body, signature, process.env['STRIPE_WEBHOOK_SECRET'])
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error'
       console.error('Webhook signature verification failed:', errorMessage)
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
             bookingId,
             amount: paymentIntent.amount / 100, // Convert from cents
             stripePaymentId: paymentIntent.id,
-            status: 'succeeded'
+            status: 'COMPLETED'
           }
         })
 
@@ -66,8 +66,8 @@ export async function POST(request: NextRequest) {
         const updatedBooking = await prisma.booking.update({
           where: { id: bookingId },
           data: {
-            paymentStatus: 'paid',
-            status: 'scheduled'
+            paymentStatus: 'COMPLETED',
+            status: 'CONFIRMED'
           },
           include: {
             customer: true,
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
               bookingId,
               amount: paymentIntent.amount / 100,
               stripePaymentId: paymentIntent.id,
-              status: 'failed'
+              status: 'FAILED'
             }
           })
 
@@ -114,8 +114,8 @@ export async function POST(request: NextRequest) {
           await prisma.booking.update({
             where: { id: bookingId },
             data: {
-              paymentStatus: 'failed',
-              status: 'canceled'
+              paymentStatus: 'FAILED',
+              status: 'CANCELLED'
             }
           })
 
@@ -135,8 +135,8 @@ export async function POST(request: NextRequest) {
           await prisma.booking.update({
             where: { id: bookingId },
             data: {
-              paymentStatus: 'failed',
-              status: 'canceled'
+              paymentStatus: 'FAILED',
+              status: 'CANCELLED'
             }
           })
 

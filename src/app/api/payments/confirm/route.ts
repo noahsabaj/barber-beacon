@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Payment intent not found' }, { status: 404 })
     }
 
-    const bookingId = paymentIntent.metadata.bookingId
+    const bookingId = paymentIntent.metadata['bookingId']
 
     if (!bookingId) {
       return NextResponse.json({ error: 'Invalid payment metadata' }, { status: 400 })
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
         id: booking.id,
         status: booking.status,
         paymentStatus: booking.paymentStatus,
-        dateTime: booking.dateTime,
+        dateTime: booking.scheduledTime,
         totalAmount: booking.totalAmount,
         customer: booking.customer,
         barber: booking.barber,
